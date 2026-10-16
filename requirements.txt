@@ -1,0 +1,18 @@
+# Phiên bản lấy từ môi trường .venv của nhóm (Python 3.14.7).
+# Cài đặt: pip install -r requirements.txt
+pandas==3.0.6
+numpy==2.5.4
+matplotlib==3.11.2
+seaborn==0.13.2
+scikit-learn==1.9.1
+PyYAML==6.0.3
+ipykernel==7.4.0
+nbformat==5.11.1
+nbconvert==7.17.2
+notebook==7.6.3
+
+# --- Framework học sâu: NHÓM CẦN CHỐT RỒI BỎ DẤU # ---
+# Trước khi chốt, kiểm tra framework có hỗ trợ Python 3.14 trên máy nhóm hay không;
+# nếu không, dùng Python thấp hơn (ví dụ 3.11/3.12) và tạo lại .venv.
+# tensorflow==<phiên bản>
+# torch==<phiên bản>

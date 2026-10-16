@@ -1,0 +1,63 @@
+# =====================================================================
+# Cấu hình chung của dự án. Mọi script/notebook đọc tham số từ đây
+# (đường dẫn, chuỗi được chọn, mốc chia tập, seed, ...).
+# Khi đổi tham số, sửa MỘT chỗ duy nhất tại file này và ghi lại vào báo cáo.
+# =====================================================================
+
+project:
+  name: BTL_DuBaoDienNang
+  seed: 42                    # seed mặc định; các thí nghiệm nhiều seed dùng seeds bên dưới
+  seeds: [42, 43, 44, 45, 46] # 3-5 seed để báo cáo trung bình ± độ lệch chuẩn
+
+paths:                        # tính từ thư mục gốc dự án
+  raw_file: data/raw/LD2011_2014.txt
+  processed_dir: data/processed
+  hourly_file: data/processed/series_hourly.csv
+  tables_dir: results/tables
+  figures_dir: results/figures
+  models_dir: models
+
+data:
+  source: "UCI ElectricityLoadDiagrams20112014"
+  source_url: "https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014"
+  raw_separator: ";"
+  raw_decimal: ","            # dữ liệu gốc dùng dấu phẩy thập phân
+  raw_unit: "kW, ghi nhận mỗi 15 phút"
+  hourly_unit: "kW trung bình mỗi giờ (mean của 4 mốc 15 phút)"
+  # Nhãn thời gian là MỐC KẾT THÚC của khoảng đo. Mốc 02:00 gồm 01:15, 01:30, 01:45, 02:00.
+  hourly_timestamp_convention: "right-labeled (closed='right', label='right')"
+
+# Chuỗi (khách hàng) được dùng. ĐỀ XUẤT - nhóm xác nhận trước khi chốt trong báo cáo.
+customers:
+  hourly_file_columns: [MT_156, MT_158, MT_159, MT_168, MT_169]
+  main: MT_158                  # chuỗi chính: chu kỳ ngày/tuần rõ, không có giá trị 0
+  secondary: [MT_168, MT_169]   # chuỗi phụ (tùy chọn, chạy lại cùng pipeline)
+  reserve: [MT_159]             # dự phòng: mức tải giảm mạnh theo năm (lệch phân phối)
+  excluded:
+    MT_156: "Có đoạn không đổi dài (tới 215 giờ liên tiếp): ít thông tin để học"
+
+# Chia train/validation/test THEO THỜI GIAN (không xáo trộn). Mốc cắt tính theo nhãn giờ (bao gồm mốc cuối).
+split:
+  method: chronological
+  train_end: "2014-03-01 00:00:00"
+  val_end: "2014-08-01 00:00:00"
+  expected_rows: {train: 27720, validation: 3672, test: 3672}   # tổng 35.064 giờ
+
+# Thiết lập bài toán và huấn luyện: giá trị KHỞI ĐẦU, điều chỉnh theo validation rồi ghi vào báo cáo.
+task:
+  horizon_hours: 1            # dự báo giờ kế tiếp (t+1)
+  window_hours: 24            # cửa sổ đầu vào mặc định
+  window_candidates: [24, 48, 168]
+training:
+  loss: mse                   # hoặc huber nếu nhiều giá trị ngoại lai
+  optimizer: adam
+  learning_rate: 0.001
+  batch_size: 64
+  max_epochs: 100
+  early_stopping_patience: 10
+
+# Ngày chuyển giờ mùa hè/mùa đông (Chủ nhật cuối tháng 3 và tháng 10).
+# Giờ nhãn 02:00 của các ngày này có thể bất thường (xem src/dst_check.py).
+dst:
+  march: ["2011-03-27", "2012-03-25", "2013-03-31", "2014-03-30"]
+  october: ["2011-10-30", "2012-10-28", "2013-10-27", "2014-10-26"]
