@@ -10,6 +10,10 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import os
+import joblib
+import numpy as np
+
 
 try:  # chạy dạng module (from src.data import ...)
     from src.config import ROOT_DIR, load_config, path_from
@@ -128,6 +132,78 @@ def main():
     print(f"\nĐã lưu: {out_dir}/train.csv, validation.csv, test.csv")
     print(f"Đã lưu: {tables_dir / 'split_summary.csv'}")
     print("Lưu ý: scaler (nếu dùng) phải được fit CHỈ trên tập train.")
+    
+def get_lookback_context(
+    full_df: pd.DataFrame, eval_df: pd.DataFrame, lookback_hours: int = 168
+) -> pd.DataFrame:
+    """Tạo Lookback Buffer (ví dụ 168h) lấy từ quá khứ cho tập Validation/Test.
+
+    Giúp Seasonal Naive 168h không bị thiếu dữ liệu ở các mẫu đầu tập
+    val/test.
+    """
+    start_idx = eval_df.index.min()
+    loc = full_df.index.get_loc(start_idx)
+    context_start_loc = max(0, loc - lookback_hours)
+    context_df = full_df.iloc[context_start_loc : loc + len(eval_df)].copy()
+    return context_df
+
+
+def fit_and_save_scaler(
+    train_df: pd.DataFrame,
+    scaler_path: str = "models/scaler.pkl",
+    scaler_cls=None,
+):
+    """Fit scaler CHỈ trên tập Train và lưu file models/scaler.pkl."""
+    from sklearn.preprocessing import StandardScaler
+
+    scaler_cls = scaler_cls or StandardScaler
+    os.makedirs(os.path.dirname(scaler_path), exist_ok=True)
+
+    scaler = scaler_cls()
+    scaler.fit(train_df.values)
+    joblib.dump(scaler, scaler_path)
+    return scaler
+
+
+def transform_data(df: pd.DataFrame, scaler) -> pd.DataFrame:
+    """Chuẩn hóa dữ liệu bằng scaler đã fit."""
+    scaled_values = scaler.transform(df.values)
+    return pd.DataFrame(scaled_values, index=df.index, columns=df.columns)
+
+
+def inverse_transform_array(
+    scaled_array: np.ndarray, scaler
+) -> np.ndarray:
+    """Khôi phục dữ liệu về thang đo gốc trước khi tính metric."""
+    if scaled_array.ndim == 1:
+        scaled_array = scaled_array.reshape(-1, 1)
+    return scaler.inverse_transform(scaled_array).flatten()
+
+
+def create_sliding_window(
+    data_array: np.ndarray,
+    timestamps: pd.DatetimeIndex,
+    window_size: int = 24,
+    lookback_buffer: int = 0,
+):
+    """Tạo cặp đầu vào X, y cho MLP/LSTM và giữ đúng timestamp nhãn mục tiêu."""
+    X, y, target_timestamps = [], [], []
+
+    for i in range(window_size, len(data_array)):
+        X.append(data_array[i - window_size : i])
+        y.append(data_array[i])
+        target_timestamps.append(timestamps[i])
+
+    X = np.array(X)
+    y = np.array(y).flatten()
+    target_timestamps = pd.DatetimeIndex(target_timestamps)
+
+    if lookback_buffer > 0:
+        X = X[lookback_buffer:]
+        y = y[lookback_buffer:]
+        target_timestamps = target_timestamps[lookback_buffer:]
+
+    return X, y, target_timestamps
 
 
 if __name__ == "__main__":
