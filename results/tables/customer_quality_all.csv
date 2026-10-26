@@ -1,0 +1,371 @@
+﻿customer,records_15min,missing_count,negative_count,leading_zero_steps,leading_zero_days,zeros_after_start,mean_15min,pass_no_missing,pass_no_negative,pass_full_from_2011,pass_no_inner_zero,pass_positive_mean,stage_a_pass,stage_a_reason
+MT_001,140256,0,0,35040,365.0,5703,3.9707847884340888,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_002,140256,0,0,35040,365.0,4,20.768480446861094,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_003,140256,0,0,35040,365.0,610,2.9183077136589675,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_004,140256,0,0,35040,365.0,13,82.18449049765134,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_005,140256,0,0,35040,365.0,12,37.240309439626714,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_006,140256,0,0,35040,365.0,12,141.22738481254683,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_007,140256,0,0,35040,365.0,13,4.5213375119375545,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_008,140256,0,0,35040,365.0,13,191.4014745703468,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_009,140256,0,0,35040,365.0,15,39.97535373354826,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_010,140256,0,0,35040,365.0,14,42.205152083670214,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_011,140256,0,0,35040,365.0,12,29.833004065090844,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_012,140256,0,0,93272,971.6,5,49.30499426428651,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_013,140256,0,0,35040,365.0,14,55.109965959613575,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_014,140256,0,0,35040,365.0,41,33.51008460989267,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_015,140256,0,0,85018,885.6,10564,15.163417748673414,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_016,140256,0,0,35040,365.0,13,24.767073324100185,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_017,140256,0,0,35040,365.0,48,36.914869130922455,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_018,140256,0,0,35040,365.0,12,184.00449770804602,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_019,140256,0,0,35040,365.0,14,6.187150068620202,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_020,140256,0,0,35040,365.0,13,30.630277179934623,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_021,140256,0,0,35040,365.0,12,121.76253904015023,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_022,140256,0,0,35040,365.0,14,20.559678793247997,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_023,140256,0,0,35040,365.0,108,7.376725057956786,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_024,140256,0,0,43628,454.5,8,21.40699048614469,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_025,140256,0,0,35040,365.0,12,163.37399234560672,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_026,140256,0,0,35040,365.0,12,15.668008405316606,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_027,140256,0,0,35040,365.0,13,14.982382603722323,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_028,140256,0,0,35040,365.0,14,50.404422117928824,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_029,140256,0,0,35040,365.0,13,58.85034931874438,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_030,140256,0,0,82521,859.6,4,15.438616176279691,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_031,140256,0,0,35040,365.0,14,67.35532520382326,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_032,140256,0,0,65817,685.6,9,15.411176131868672,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_033,140256,0,0,53722,559.6,9,24.84886205147509,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_034,140256,0,0,35040,365.0,14,10.546950231591197,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_035,140256,0,0,35040,365.0,13,87.88241894912726,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_036,140256,0,0,35040,365.0,13,27.42137285307502,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_037,140256,0,0,35040,365.0,13,83.37338150385108,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_038,140256,0,0,35040,365.0,12,89.8838364617075,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_039,140256,0,0,96624,1006.5,5,13.055790436349787,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_040,140256,0,0,35040,365.0,12,74.71300912940819,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_041,140256,0,0,94718,986.6,4,28.815855227640277,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_042,140256,0,0,35040,365.0,13,31.746297059750248,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_043,140256,0,0,35040,365.0,13,814.35310504944,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_044,140256,0,0,35040,365.0,12,22.82016473463323,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_045,140256,0,0,35040,365.0,12,70.65745442995716,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_046,140256,0,0,35040,365.0,12,98.58661985583306,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_047,140256,0,0,35040,365.0,13,21.043447751537418,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_048,140256,0,0,35040,365.0,14,11.544215416161336,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_049,140256,0,0,35040,365.0,14,699.335034616844,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_050,140256,0,0,35040,365.0,12,123.78044583191515,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_051,140256,0,0,35040,365.0,12,41.500641962916625,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_052,140256,0,0,35040,365.0,14,26.661097228918468,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_053,140256,0,0,35040,365.0,12,50.24997261445523,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_054,140256,0,0,35040,365.0,12,52.357493661553136,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_055,140256,0,0,35040,365.0,14,17.752752909500142,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_056,140256,0,0,35040,365.0,13,28.20447839267455,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_057,140256,0,0,35040,365.0,633,18.43420965275841,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_058,140256,0,0,35040,365.0,13,64.0451587121955,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_059,140256,0,0,35040,365.0,12,89.42867195549796,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_060,140256,0,0,35040,365.0,13,20.55869530363103,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_061,140256,0,0,35040,365.0,13,56.77058062689159,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_062,140256,0,0,35040,365.0,13,44.86151236233909,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_063,140256,0,0,35040,365.0,13,16.952077555059436,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_064,140256,0,0,35040,365.0,110,1059.338746590672,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_065,140256,0,0,35040,365.0,14,47.29133049103136,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_066,140256,0,0,35040,365.0,11915,29.840385790077107,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_067,140256,0,0,35040,365.0,14,147.19865105272754,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_068,140256,0,0,35040,365.0,13,116.68980594895595,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_069,140256,0,0,35040,365.0,12,121.34572391527995,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_070,140256,0,0,35040,365.0,13,31.13149706060171,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_071,140256,0,0,35040,365.0,13,34.25533820878091,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_072,140256,0,0,35040,365.0,13,71.39755098871716,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_073,140256,0,0,35040,365.0,12,35.37453617685448,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_074,140256,0,0,35040,365.0,13,66.90913970834067,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_075,140256,0,0,35040,365.0,15,35.954020651552455,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_076,140256,0,0,35040,365.0,13,45.29235994999924,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_077,140256,0,0,35040,365.0,13,26.546178107419543,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_078,140256,0,0,35040,365.0,12,30.190040948179224,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_079,140256,0,0,35040,365.0,13,24.341623891928638,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_080,140256,0,0,35040,365.0,41,10.823585350749775,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_081,140256,0,0,35040,365.0,14,74.77620524425036,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_082,140256,0,0,35040,365.0,13,33.410879435925864,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_083,140256,0,0,35040,365.0,13,53.61063814059855,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_084,140256,0,0,35040,365.0,13,165.76061530111045,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_085,140256,0,0,35040,365.0,12,93.0427910444224,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_086,140256,0,0,35040,365.0,13,330.2841723778736,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_087,140256,0,0,35040,365.0,12,86.60183835361418,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_088,140256,0,0,35040,365.0,13,95.38215820793553,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_089,140256,0,0,35040,365.0,12,145.90334915668757,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_090,140256,0,0,35040,365.0,18,96.78182308994933,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_091,140256,0,0,35040,365.0,9,103.77339456915284,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_092,140256,0,0,73095,761.4,4,24.781492097190654,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_093,140256,0,0,35040,365.0,9,19.532633351824604,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_094,140256,0,0,35040,365.0,4,19.374382697630562,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_095,140256,0,0,35040,365.0,4,12.74309438507993,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_096,140256,0,0,35040,365.0,5,8.195473579847524,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_097,140256,0,0,35040,365.0,4,140.81003088817704,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_098,140256,0,0,35040,365.0,4,511.11265241619714,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_099,140256,0,0,35040,365.0,4,877.5876511076175,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_100,140256,0,0,35040,365.0,4,44.16206088160258,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_101,140256,0,0,35040,365.0,9,524.3431424298788,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_102,140256,0,0,35040,365.0,4,656.2476549865502,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_103,140256,0,0,35040,365.0,11,843.3659317430679,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_104,140256,0,0,35040,365.0,4,425.5690161450463,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_105,140256,0,0,35040,365.0,4,163.6778471014107,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_106,140256,0,0,106464,1109.0,4,12.31360499057838,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_107,140256,0,0,106464,1109.0,4,4.059163892391356,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_108,140256,0,0,106464,1109.0,4,7.15560856181427,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_109,140256,0,0,109824,1144.0,5,15.580325090528866,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_110,140256,0,0,106464,1109.0,4,5.663000786029773,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_111,140256,0,0,106464,1109.0,4,12.709067904456903,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_112,140256,0,0,109248,1138.0,41,7.679518516800793,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_113,140256,0,0,106464,1109.0,4,7.732166057998646,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_114,140256,0,0,35040,365.0,31,232.44322032167463,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_115,140256,0,0,106464,1109.0,19,5.649264720608737,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_116,140256,0,0,109824,1144.0,4,9.372835639321094,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_117,140256,0,0,106464,1109.0,4,3.6176196063677253,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_118,140256,0,0,35040,365.0,14,73.11132705853983,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_119,140256,0,0,35040,365.0,16,60.246275326265554,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_120,140256,0,0,106464,1109.0,4,9.609596460942072,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_121,140256,0,0,106464,1109.0,4,27.65090309438737,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_122,140256,0,0,106464,1109.0,4,5.3804523349148266,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_123,140256,0,0,35040,365.0,219,46.57439626338389,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_124,140256,0,0,0,0.0,12,280.76336412191284,True,True,True,False,True,False,no_inner_zero
+MT_125,140256,0,0,35040,365.0,12,28.72184170410972,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_126,140256,0,0,35040,365.0,12,44.13607721890512,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_127,140256,0,0,52513,547.0,19227,41.791837929420986,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_128,140256,0,0,35040,365.0,12,224.3949977949197,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_129,140256,0,0,35040,365.0,0,83.43051355322447,True,True,False,True,True,False,full_from_2011
+MT_130,140256,0,0,35040,365.0,65569,32.12492974294584,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_131,140256,0,0,0,0.0,66917,69.5631260760171,True,True,True,False,True,False,no_inner_zero
+MT_132,140256,0,0,0,0.0,78973,13.598256817792556,True,True,True,False,True,False,no_inner_zero
+MT_133,140256,0,0,112096,1167.7,9664,0.8180580593640473,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_134,140256,0,0,70176,731.0,0,7.1176396690170085,True,True,False,True,True,False,full_from_2011
+MT_135,140256,0,0,35040,365.0,12,24.260773786709322,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_136,140256,0,0,35040,365.0,108,100.02944694826952,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_137,140256,0,0,35040,365.0,12,53.16643888672791,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_138,140256,0,0,35040,365.0,13,85.47642098902337,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_139,140256,0,0,35040,365.0,12,294.60235041106586,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_140,140256,0,0,35040,365.0,12,48.49091706367326,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_141,140256,0,0,35040,365.0,12,6.627775021626638,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_142,140256,0,0,35040,365.0,12,41.68200170249937,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_143,140256,0,0,35040,365.0,146,127.2519152159045,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_144,140256,0,0,63902,665.6,15,99.00037747746393,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_145,140256,0,0,35040,365.0,15,58.01415557557933,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_146,140256,0,0,35681,371.7,39,62.609300041284406,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_147,140256,0,0,35040,365.0,12,2051.058761012682,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_148,140256,0,0,35040,365.0,12,257.4551579950285,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_149,140256,0,0,35040,365.0,24,17.606216173831942,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_150,140256,0,0,35040,365.0,14,20.594514826763554,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_151,140256,0,0,35040,365.0,117,74.1381695598199,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_152,140256,0,0,70176,731.0,8,529.513793117307,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_153,140256,0,0,35040,365.0,21,137.90776434407647,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_154,140256,0,0,35040,365.0,40,24.935998873667423,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_155,140256,0,0,35040,365.0,13,110.94342181275567,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_156,140256,0,0,0,0.0,0,78.01069962074791,True,True,True,True,True,True,
+MT_157,140256,0,0,35040,365.0,46,1640.22171365358,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_158,140256,0,0,0,0.0,0,75.50701530391791,True,True,True,True,True,True,
+MT_159,140256,0,0,0,0.0,0,61.921858946685475,True,True,True,True,True,True,
+MT_160,140256,0,0,108480,1130.0,0,1.1599758159774651,True,True,False,True,True,False,full_from_2011
+MT_161,140256,0,0,0,0.0,18,1774.4500874200967,True,True,True,False,True,False,no_inner_zero
+MT_162,140256,0,0,0,0.0,45,288.5658301301972,True,True,True,False,True,False,no_inner_zero
+MT_163,140256,0,0,0,0.0,21,2398.864311923699,True,True,True,False,True,False,no_inner_zero
+MT_164,140256,0,0,5038,52.5,34,108.68927904983084,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_165,140256,0,0,93929,978.4,4,28.104239393159077,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_166,140256,0,0,0,0.0,0,1283.4340900788698,True,True,True,True,True,True,
+MT_167,140256,0,0,51648,538.0,0,47.87081787825147,True,True,False,True,True,False,full_from_2011
+MT_168,140256,0,0,0,0.0,0,137.11595695278987,True,True,True,True,True,True,
+MT_169,140256,0,0,0,0.0,0,40.02630461351243,True,True,True,True,True,True,
+MT_170,140256,0,0,75744,789.0,0,39.62174706344949,True,True,False,True,True,False,full_from_2011
+MT_171,140256,0,0,0,0.0,0,246.21777142967477,True,True,True,True,True,True,
+MT_172,140256,0,0,0,0.0,0,124.0675411808997,True,True,True,True,True,True,
+MT_173,140256,0,0,42720,445.0,0,43.61281840471343,True,True,False,True,True,False,full_from_2011
+MT_174,140256,0,0,0,0.0,96,145.3325026865769,True,True,True,False,True,False,no_inner_zero
+MT_175,140256,0,0,0,0.0,96,163.32117462446843,True,True,True,False,True,False,no_inner_zero
+MT_176,140256,0,0,0,0.0,0,84.77057121975929,True,True,True,True,True,True,
+MT_177,140256,0,0,53952,562.0,0,92.64165978337707,True,True,False,True,True,False,full_from_2011
+MT_178,140256,0,0,124224,1294.0,96,51.626177325093416,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_179,140256,0,0,104064,1084.0,96,20.27972178667964,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_180,140256,0,0,0,0.0,0,154.2308444754802,True,True,True,True,True,True,
+MT_181,140256,0,0,111264,1159.0,96,27.326419813615832,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_182,140256,0,0,0,0.0,0,52.78303771363535,True,True,True,True,True,True,
+MT_183,140256,0,0,0,0.0,0,85.35754828841112,True,True,True,True,True,True,
+MT_184,140256,0,0,54336,566.0,0,56.30601626194669,True,True,False,True,True,False,full_from_2011
+MT_185,140256,0,0,86592,902.0,0,26.35244397293609,True,True,False,True,True,False,full_from_2011
+MT_186,140256,0,0,95948,999.5,5,176.6647169679376,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_187,140256,0,0,0,0.0,14,49.774515923756034,True,True,True,False,True,False,no_inner_zero
+MT_188,140256,0,0,0,0.0,96,35.15191166867408,True,True,True,False,True,False,no_inner_zero
+MT_189,140256,0,0,0,0.0,17,415.4696385062655,True,True,True,False,True,False,no_inner_zero
+MT_190,140256,0,0,0,0.0,21,387.03966456391265,True,True,True,False,True,False,no_inner_zero
+MT_191,140256,0,0,0,0.0,18,1952.047706262178,True,True,True,False,True,False,no_inner_zero
+MT_192,140256,0,0,0,0.0,57,465.8465574539955,True,True,True,False,True,False,no_inner_zero
+MT_193,140256,0,0,0,0.0,31,303.98643050916127,True,True,True,False,True,False,no_inner_zero
+MT_194,140256,0,0,0,0.0,24,2675.000006678358,True,True,True,False,True,False,no_inner_zero
+MT_195,140256,0,0,0,0.0,20,451.8696367155668,True,True,True,False,True,False,no_inner_zero
+MT_196,140256,0,0,0,0.0,22,20744.15087617643,True,True,True,False,True,False,no_inner_zero
+MT_197,140256,0,0,0,0.0,20,156.90450618183186,True,True,True,False,True,False,no_inner_zero
+MT_198,140256,0,0,0,0.0,24,246.90821948863638,True,True,True,False,True,False,no_inner_zero
+MT_199,140256,0,0,0,0.0,19,465.6144165280533,True,True,True,False,True,False,no_inner_zero
+MT_200,140256,0,0,0,0.0,16,848.6403111095799,True,True,True,False,True,False,no_inner_zero
+MT_201,140256,0,0,0,0.0,28,295.91162978267045,True,True,True,False,True,False,no_inner_zero
+MT_202,140256,0,0,0,0.0,17,242.3931450161891,True,True,True,False,True,False,no_inner_zero
+MT_203,140256,0,0,0,0.0,107,537.606862971569,True,True,True,False,True,False,no_inner_zero
+MT_204,140256,0,0,0,0.0,14,888.2143125392577,True,True,True,False,True,False,no_inner_zero
+MT_205,140256,0,0,0,0.0,112,531.8350229127315,True,True,True,False,True,False,no_inner_zero
+MT_206,140256,0,0,0,0.0,16,209.21510332311476,True,True,True,False,True,False,no_inner_zero
+MT_207,140256,0,0,0,0.0,31,857.4103465602329,True,True,True,False,True,False,no_inner_zero
+MT_208,140256,0,0,0,0.0,22,6662.030065636153,True,True,True,False,True,False,no_inner_zero
+MT_209,140256,0,0,0,0.0,116,586.1908202679386,True,True,True,False,True,False,no_inner_zero
+MT_210,140256,0,0,0,0.0,15,733.4094066533247,True,True,True,False,True,False,no_inner_zero
+MT_211,140256,0,0,0,0.0,23,192.84435959958932,True,True,True,False,True,False,no_inner_zero
+MT_212,140256,0,0,0,0.0,14,363.774291962052,True,True,True,False,True,False,no_inner_zero
+MT_213,140256,0,0,0,0.0,49,1195.7390558202328,True,True,True,False,True,False,no_inner_zero
+MT_214,140256,0,0,0,0.0,24,396.8639915547194,True,True,True,False,True,False,no_inner_zero
+MT_215,140256,0,0,0,0.0,15,405.471118617853,True,True,True,False,True,False,no_inner_zero
+MT_216,140256,0,0,0,0.0,29,2200.5197137476725,True,True,True,False,True,False,no_inner_zero
+MT_217,140256,0,0,0,0.0,17,214.45497118708357,True,True,True,False,True,False,no_inner_zero
+MT_218,140256,0,0,0,0.0,25,1300.449095277326,True,True,True,False,True,False,no_inner_zero
+MT_219,140256,0,0,0,0.0,82,509.51682225351476,True,True,True,False,True,False,no_inner_zero
+MT_220,140256,0,0,0,0.0,15,2951.4498987310203,True,True,True,False,True,False,no_inner_zero
+MT_221,140256,0,0,0,0.0,16,158.68961569522884,True,True,True,False,True,False,no_inner_zero
+MT_222,140256,0,0,0,0.0,14,946.2837193421484,True,True,True,False,True,False,no_inner_zero
+MT_223,140256,0,0,0,0.0,79662,336.21022509888047,True,True,True,False,True,False,no_inner_zero
+MT_224,140256,0,0,86880,905.0,0,1287.9561257057067,True,True,False,True,True,False,full_from_2011
+MT_225,140256,0,0,0,0.0,0,337.55857457283537,True,True,True,True,True,True,
+MT_226,140256,0,0,0,0.0,55,483.89734369270525,True,True,True,False,True,False,no_inner_zero
+MT_227,140256,0,0,0,0.0,18,272.2298000462382,True,True,True,False,True,False,no_inner_zero
+MT_228,140256,0,0,0,0.0,12,5782.656824679372,True,True,True,False,True,False,no_inner_zero
+MT_229,140256,0,0,0,0.0,126,973.7101166199943,True,True,True,False,True,False,no_inner_zero
+MT_230,140256,0,0,0,0.0,12,98.51013394699186,True,True,True,False,True,False,no_inner_zero
+MT_231,140256,0,0,0,0.0,0,641.4658749188472,True,True,True,True,True,True,
+MT_232,140256,0,0,0,0.0,0,85.59870948554311,True,True,True,True,True,True,
+MT_233,140256,0,0,0,0.0,0,139.14409477760648,True,True,True,True,True,True,
+MT_234,140256,0,0,0,0.0,0,88.18504889672161,True,True,True,True,True,True,
+MT_235,140256,0,0,0,0.0,0,791.8746646645744,True,True,True,True,True,True,
+MT_236,140256,0,0,0,0.0,96,147.88264108811126,True,True,True,False,True,False,no_inner_zero
+MT_237,140256,0,0,0,0.0,0,85.99122434645336,True,True,True,True,True,True,
+MT_238,140256,0,0,0,0.0,0,410.86750260023337,True,True,True,True,True,True,
+MT_239,140256,0,0,0,0.0,0,116.00620486333324,True,True,True,True,True,True,
+MT_240,140256,0,0,0,0.0,0,364.4990428757639,True,True,True,True,True,True,
+MT_241,140256,0,0,0,0.0,13,2616.8670767849367,True,True,True,False,True,False,no_inner_zero
+MT_242,140256,0,0,0,0.0,0,199.8365591478904,True,True,True,True,True,True,
+MT_243,140256,0,0,0,0.0,14,131.09128778333113,True,True,True,False,True,False,no_inner_zero
+MT_244,140256,0,0,0,0.0,0,156.90068598235624,True,True,True,True,True,True,
+MT_245,140256,0,0,0,0.0,0,198.3348684357031,True,True,True,True,True,True,
+MT_246,140256,0,0,0,0.0,96,608.0142630884603,True,True,True,False,True,False,no_inner_zero
+MT_247,140256,0,0,0,0.0,14,464.1531787356666,True,True,True,False,True,False,no_inner_zero
+MT_248,140256,0,0,0,0.0,0,166.7252535905333,True,True,True,True,True,True,
+MT_249,140256,0,0,0,0.0,0,69.64533012978241,True,True,True,True,True,True,
+MT_250,140256,0,0,0,0.0,0,93.0570443959262,True,True,True,True,True,True,
+MT_251,140256,0,0,0,0.0,0,78.06250586272384,True,True,True,True,True,True,
+MT_252,140256,0,0,0,0.0,0,232.63418404548042,True,True,True,True,True,True,
+MT_253,140256,0,0,0,0.0,0,334.60742827875276,True,True,True,True,True,True,
+MT_254,140256,0,0,0,0.0,0,250.55824497529522,True,True,True,True,True,True,
+MT_255,140256,0,0,64992,677.0,0,329.51436518096307,True,True,False,True,True,False,full_from_2011
+MT_256,140256,0,0,0,0.0,0,147.28388101756556,True,True,True,True,True,True,
+MT_257,140256,0,0,0,0.0,0,156.41463963618403,True,True,True,True,True,True,
+MT_258,140256,0,0,0,0.0,0,123.5988140452569,True,True,True,True,True,True,
+MT_259,140256,0,0,0,0.0,0,159.07957828038772,True,True,True,True,True,True,
+MT_260,140256,0,0,0,0.0,0,183.53085108164944,True,True,True,True,True,True,
+MT_261,140256,0,0,0,0.0,0,62.42393136479066,True,True,True,True,True,True,
+MT_262,140256,0,0,0,0.0,0,197.41285613625257,True,True,True,True,True,True,
+MT_263,140256,0,0,0,0.0,0,191.58850817126844,True,True,True,True,True,True,
+MT_264,140256,0,0,0,0.0,0,196.4632739275728,True,True,True,True,True,True,
+MT_265,140256,0,0,0,0.0,0,177.66674709416623,True,True,True,True,True,True,
+MT_266,140256,0,0,0,0.0,0,280.6974378413041,True,True,True,True,True,True,
+MT_267,140256,0,0,0,0.0,110,69.91145161651679,True,True,True,False,True,False,no_inner_zero
+MT_268,140256,0,0,0,0.0,0,250.5656185000285,True,True,True,True,True,True,
+MT_269,140256,0,0,0,0.0,0,800.7494667875197,True,True,True,True,True,True,
+MT_270,140256,0,0,0,0.0,0,68.40652126141917,True,True,True,True,True,True,
+MT_271,140256,0,0,0,0.0,0,152.5373274345064,True,True,True,True,True,True,
+MT_272,140256,0,0,0,0.0,14,155.35736325246305,True,True,True,False,True,False,no_inner_zero
+MT_273,140256,0,0,0,0.0,26,496.7010548113961,True,True,True,False,True,False,no_inner_zero
+MT_274,140256,0,0,0,0.0,15,328.9443047625675,True,True,True,False,True,False,no_inner_zero
+MT_275,140256,0,0,0,0.0,0,131.4951247497747,True,True,True,True,True,True,
+MT_276,140256,0,0,0,0.0,0,1973.3353842611648,True,True,True,True,True,True,
+MT_277,140256,0,0,0,0.0,0,92.02429165080115,True,True,True,True,True,True,
+MT_278,140256,0,0,0,0.0,0,90.66898499239689,True,True,True,True,True,True,
+MT_279,140256,0,0,0,0.0,96,12038.971217083654,True,True,True,False,True,False,no_inner_zero
+MT_280,140256,0,0,9216,96.0,0,270.7144055165862,True,True,False,True,True,False,full_from_2011
+MT_281,140256,0,0,0,0.0,0,122.79088900210652,True,True,True,True,True,True,
+MT_282,140256,0,0,0,0.0,96,113.08172553105732,True,True,True,False,True,False,no_inner_zero
+MT_283,140256,0,0,0,0.0,0,268.6284282191162,True,True,True,True,True,True,
+MT_284,140256,0,0,0,0.0,0,73.79102427366898,True,True,True,True,True,True,
+MT_285,140256,0,0,0,0.0,0,101.44324469579604,True,True,True,True,True,True,
+MT_286,140256,0,0,0,0.0,0,120.59137765569143,True,True,True,True,True,True,
+MT_287,140256,0,0,0,0.0,0,158.0191811251363,True,True,True,True,True,True,
+MT_288,140256,0,0,0,0.0,2112,95.14081031225746,True,True,True,False,True,False,no_inner_zero
+MT_289,140256,0,0,102048,1063.0,0,28.240722420118185,True,True,False,True,True,False,full_from_2011
+MT_290,140256,0,0,0,0.0,0,583.4078935005269,True,True,True,True,True,True,
+MT_291,140256,0,0,0,0.0,16,89.39857022417358,True,True,True,False,True,False,no_inner_zero
+MT_292,140256,0,0,0,0.0,0,264.36038197790333,True,True,True,True,True,True,
+MT_293,140256,0,0,0,0.0,0,97.30718993446266,True,True,True,True,True,True,
+MT_294,140256,0,0,0,0.0,0,641.0199541668389,True,True,True,True,True,True,
+MT_295,140256,0,0,0,0.0,0,266.6687497181889,True,True,True,True,True,True,
+MT_296,140256,0,0,0,0.0,0,97.88249431263478,True,True,True,True,True,True,
+MT_297,140256,0,0,0,0.0,0,150.65882222289648,True,True,True,True,True,True,
+MT_298,140256,0,0,0,0.0,0,964.4079599793156,True,True,True,True,True,True,
+MT_299,140256,0,0,0,0.0,0,494.29049477205206,True,True,True,True,True,True,
+MT_300,140256,0,0,0,0.0,0,131.81722708432818,True,True,True,True,True,True,
+MT_301,140256,0,0,0,0.0,0,116.1573272681477,True,True,True,True,True,True,
+MT_302,140256,0,0,0,0.0,0,126.91843422464372,True,True,True,True,True,True,
+MT_303,140256,0,0,0,0.0,0,152.6418812766955,True,True,True,True,True,True,
+MT_304,140256,0,0,0,0.0,0,69.32952865481057,True,True,True,True,True,True,
+MT_305,140256,0,0,103008,1073.0,0,18.994299727017555,True,True,False,True,True,False,full_from_2011
+MT_306,140256,0,0,0,0.0,0,81.25582125429136,True,True,True,True,True,True,
+MT_307,140256,0,0,0,0.0,0,781.7337932538189,True,True,True,True,True,True,
+MT_308,140256,0,0,57024,594.0,0,66.83868554878165,True,True,False,True,True,False,full_from_2011
+MT_309,140256,0,0,0,0.0,0,222.53783265202168,True,True,True,True,True,True,
+MT_310,140256,0,0,0,0.0,0,601.5812128818582,True,True,True,True,True,True,
+MT_311,140256,0,0,0,0.0,0,129.84826407938883,True,True,True,True,True,True,
+MT_312,140256,0,0,0,0.0,0,384.46657556012025,True,True,True,True,True,True,
+MT_313,140256,0,0,0,0.0,96,237.95189453559448,True,True,True,False,True,False,no_inner_zero
+MT_314,140256,0,0,0,0.0,18,1120.6907849547433,True,True,True,False,True,False,no_inner_zero
+MT_315,140256,0,0,0,0.0,0,88.78603335791239,True,True,True,True,True,True,
+MT_316,140256,0,0,0,0.0,0,347.55037912575114,True,True,True,True,True,True,
+MT_317,140256,0,0,0,0.0,0,534.9990246088629,True,True,True,True,True,True,
+MT_318,140256,0,0,0,0.0,0,174.42257728459435,True,True,True,True,True,True,
+MT_319,140256,0,0,0,0.0,0,96.79459290735521,True,True,True,True,True,True,
+MT_320,140256,0,0,0,0.0,0,104.69942044930292,True,True,True,True,True,True,
+MT_321,140256,0,0,0,0.0,0,112.898436383953,True,True,True,True,True,True,
+MT_322,140256,0,0,93312,972.0,21,31.913161893780853,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_323,140256,0,0,0,0.0,0,1789.7653678018373,True,True,True,True,True,True,
+MT_324,140256,0,0,0,0.0,0,337.04211769160713,True,True,True,True,True,True,
+MT_325,140256,0,0,0,0.0,18,313.965029551893,True,True,True,False,True,False,no_inner_zero
+MT_326,140256,0,0,0,0.0,0,253.97436450519385,True,True,True,True,True,True,
+MT_327,140256,0,0,0,0.0,0,568.306638540058,True,True,True,True,True,True,
+MT_328,140256,0,0,0,0.0,15,1255.1986945921901,True,True,True,False,True,False,no_inner_zero
+MT_329,140256,0,0,0,0.0,0,212.72900501601762,True,True,True,True,True,True,
+MT_330,140256,0,0,0,0.0,0,99.4090579032801,True,True,True,True,True,True,
+MT_331,140256,0,0,0,0.0,58,221.827102974942,True,True,True,False,True,False,no_inner_zero
+MT_332,140256,0,0,57556,599.5,213,29.308875464875282,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_333,140256,0,0,35040,365.0,123,63.745553738483274,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_334,140256,0,0,35040,365.0,153,61.0057101756523,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_335,140256,0,0,35040,365.0,108,54.97806210629515,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_336,140256,0,0,35040,365.0,123,121.34626922269078,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_337,140256,0,0,106752,1112.0,96,31.362774461149122,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_338,140256,0,0,35040,365.0,108,183.64165636249092,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_339,140256,0,0,35040,365.0,12,2442.7155615406004,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_340,140256,0,0,35040,365.0,188,100.34282153595419,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_341,140256,0,0,35040,365.0,113,779.1878657897587,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_342,140256,0,0,35040,365.0,25,204.09652406587168,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_343,140256,0,0,35040,365.0,16,113.71920353769848,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_344,140256,0,0,35040,365.0,38,130.36140557085642,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_345,140256,0,0,35040,365.0,79,1565.9769408024802,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_346,140256,0,0,35040,365.0,140,215.01934707833837,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_347,140256,0,0,35040,365.0,72384,1.8448802933297472,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_348,140256,0,0,35040,365.0,67012,13.065485713227872,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_349,140256,0,0,35040,365.0,109,144.052901140714,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_350,140256,0,0,35040,365.0,37,484.3080826209828,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_351,140256,0,0,35040,365.0,28,1230.4597941829738,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_352,140256,0,0,35040,365.0,34,77.09692343903403,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_353,140256,0,0,35040,365.0,23,391.2539675645046,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_354,140256,0,0,35040,365.0,42,90.12687346843326,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_355,140256,0,0,35040,365.0,154,495.26011328876933,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_356,140256,0,0,35040,365.0,29,82.16438131072111,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_357,140256,0,0,35040,365.0,61,1408.881713383408,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_358,140256,0,0,35040,365.0,16,605.1083828092723,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_359,140256,0,0,35040,365.0,45,81.53175417344211,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_360,140256,0,0,35040,365.0,51,388.2240801146524,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_361,140256,0,0,35040,365.0,17,218.21370093997874,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_362,140256,0,0,35040,365.0,78,37607.98753707506,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_363,140256,0,0,35040,365.0,31,1887.4273665312753,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_364,140256,0,0,35040,365.0,59,2940.031734465247,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_365,140256,0,0,35040,365.0,16,65.41314950571767,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_366,140256,0,0,35040,365.0,84,9.269708529785326,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_367,140256,0,0,35040,365.0,75,424.2629043879814,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_368,140256,0,0,35040,365.0,16,94.70471719123242,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_369,140256,0,0,35040,365.0,13,625.2517338565107,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
+MT_370,140256,0,0,70176,731.0,153,8722.355158877705,True,True,False,False,True,False,"full_from_2011, no_inner_zero"
