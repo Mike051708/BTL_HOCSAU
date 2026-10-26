@@ -10,7 +10,7 @@ thống kê để nhóm giải thích các lỗi dự báo lớn khi phân tích
 
 Cột ratio_vs_neighbors = giá trị giờ 02:00 / trung bình giờ 01:00 và 03:00.
 Cột suggest_check = True nếu ratio < 0.5 hoặc > 1.3 (chỉ là gợi ý: với các chuỗi
-biến động mạnh như MT_158, MT_159 ngày thường cũng có lúc đạt ngưỡng này).
+biến động mạnh như MT_158 thì ngày thường cũng có lúc đạt ngưỡng này).
 """
 import sys
 from pathlib import Path

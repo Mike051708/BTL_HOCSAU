@@ -1,26 +1,40 @@
 
+import sys
 from pathlib import Path
 
 import pandas as pd
+
+try:  # chạy dạng module (from src.data_preprocessing import ...)
+    from src.config import load_config, path_from
+except ImportError:  # chạy trực tiếp: python src/data_preprocessing.py
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from config import load_config, path_from
 
 
 # ============================================================
 # 1. CẤU HÌNH ĐƯỜNG DẪN VÀ DANH SÁCH KHÁCH HÀNG
 # ============================================================
+# Mọi tham số đọc từ configs/config.yaml. Muốn đổi chuỗi khách hàng thì sửa
+# customers.hourly_file_columns trong config, KHÔNG sửa ở đây.
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+CFG = load_config()
 
-RAW_PATH = ROOT_DIR / "data" / "raw" / "LD2011_2014.txt"
-PROCESSED_DIR = ROOT_DIR / "data" / "processed"
-TABLES_DIR = ROOT_DIR / "results" / "tables"
+RAW_PATH = path_from(CFG, "raw_file")
+PROCESSED_DIR = path_from(CFG, "processed_dir")
+TABLES_DIR = path_from(CFG, "tables_dir")
+HOURLY_PATH = path_from(CFG, "hourly_file")
 
-CUSTOMERS = [
-    "MT_156",
-    "MT_158",
-    "MT_159",
-    "MT_168",
-    "MT_169",
-]
+SEPARATOR = CFG["data"]["raw_separator"]
+DECIMAL = CFG["data"]["raw_decimal"]
+
+CUSTOMERS = list(CFG["customers"]["hourly_file_columns"])
+N_CUSTOMERS = len(CUSTOMERS)
+
+if CFG["customers"]["main"] not in CUSTOMERS:
+    raise ValueError(
+        f"customers.main ({CFG['customers']['main']}) không nằm trong "
+        f"customers.hourly_file_columns ({CUSTOMERS}). Sửa configs/config.yaml."
+    )
 
 
 # ============================================================
@@ -61,7 +75,7 @@ def main():
 
     quality_path = TABLES_DIR / "selected_customers_quality.csv"
     hourly_report_path = TABLES_DIR / "hourly_preprocessing_report.csv"
-    hourly_data_path = PROCESSED_DIR / "series_hourly.csv"
+    hourly_data_path = HOURLY_PATH
 
     # --------------------------------------------------------
     # Bước 1: Kiểm tra file dữ liệu gốc
@@ -81,7 +95,7 @@ def main():
     # Chỉ đọc dòng tiêu đề để xác định tên cột.
     header = pd.read_csv(
         RAW_PATH,
-        sep=";",
+        sep=SEPARATOR,
         nrows=0
     )
 
@@ -112,18 +126,18 @@ def main():
         )
 
     # --------------------------------------------------------
-    # Bước 2: Chỉ đọc thời gian và 5 khách hàng cần dùng
+    # Bước 2: Chỉ đọc cột thời gian và các khách hàng cần dùng
     # --------------------------------------------------------
 
-    print("\n[2/6] Đang đọc dữ liệu của 5 khách hàng...")
+    print(f"\n[2/6] Đang đọc dữ liệu của {N_CUSTOMERS} khách hàng: {', '.join(CUSTOMERS)}")
 
     # Dữ liệu gốc sử dụng dấu chấm phẩy để phân tách cột.
     # decimal=',' giúp đọc đúng số thập phân dùng dấu phẩy.
     df = pd.read_csv(
         RAW_PATH,
-        sep=";",
+        sep=SEPARATOR,
         usecols=[time_col] + CUSTOMERS,
-        decimal=",",
+        decimal=DECIMAL,
         low_memory=False
     )
 
@@ -204,8 +218,8 @@ def main():
         )
 
         raise ValueError(
-            f"Có tổng cộng {missing_total} giá trị thiếu "
-            "trong 5 chuỗi. Không tự điền dữ liệu khi chưa "
+            f"Có tổng cộng {missing_total} giá trị thiếu trong "
+            f"{N_CUSTOMERS} chuỗi. Không tự điền dữ liệu khi chưa "
             "xác định nguyên nhân."
         )
 
