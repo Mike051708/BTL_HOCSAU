@@ -148,21 +148,28 @@ def get_lookback_context(
     return context_df
 
 
+
 def fit_and_save_scaler(
     train_df: pd.DataFrame,
-    scaler_path: str = "models/scaler.pkl",
+    customer: str,
+    models_dir: str = "models",
     scaler_cls=None,
 ):
-    """Fit scaler CHỈ trên tập Train và lưu file models/scaler.pkl."""
+    """Fit scaler riêng cho từng chuỗi trên tập Train."""
     from sklearn.preprocessing import StandardScaler
 
-    scaler_cls = scaler_cls or StandardScaler
-    os.makedirs(os.path.dirname(scaler_path), exist_ok=True)
+    scaler = (scaler_cls or StandardScaler)()
 
-    scaler = scaler_cls()
-    scaler.fit(train_df.values)
-    joblib.dump(scaler, scaler_path)
+    # Chỉ fit trên một cột của chuỗi cần dự đoán
+    scaler.fit(train_df[[customer]].values)
+
+    # Lưu scaler riêng cho từng khách hàng
+    path = Path(models_dir) / f"scaler_{customer}.pkl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    joblib.dump(scaler, path)
     return scaler
+
 
 
 def transform_data(df: pd.DataFrame, scaler) -> pd.DataFrame:
@@ -180,11 +187,13 @@ def inverse_transform_array(
     return scaler.inverse_transform(scaled_array).flatten()
 
 
+
 def create_sliding_window(
     data_array: np.ndarray,
     timestamps: pd.DatetimeIndex,
     window_size: int = 24,
-    lookback_buffer: int = 0,
+    lookback_buffer=None,
+    n_context: int = 168,
 ):
     """Tạo cặp đầu vào X, y cho MLP/LSTM và giữ đúng timestamp nhãn mục tiêu."""
     X, y, target_timestamps = [], [], []
@@ -197,6 +206,15 @@ def create_sliding_window(
     X = np.array(X)
     y = np.array(y).flatten()
     target_timestamps = pd.DatetimeIndex(target_timestamps)
+
+    # Tự tính buffer để giữ đúng các mốc thời gian baseline
+    if lookback_buffer is None:
+        lookback_buffer = n_context - window_size
+
+    if lookback_buffer < 0:
+        raise ValueError(
+            "n_context phải >= window_size (dùng n_context=168)."
+        )
 
     if lookback_buffer > 0:
         X = X[lookback_buffer:]
