@@ -150,20 +150,37 @@ def get_lookback_context(
 
 def fit_and_save_scaler(
     train_df: pd.DataFrame,
-    scaler_path: str = "models/scaler.pkl",
+    customer: str,
+    models_dir: str = "models",
     scaler_cls=None,
 ):
-    """Fit scaler CHỈ trên tập Train và lưu file models/scaler.pkl."""
+    """Fit scaler chỉ trên tập Train của một khách hàng."""
+
     from sklearn.preprocessing import StandardScaler
 
     scaler_cls = scaler_cls or StandardScaler
-    os.makedirs(os.path.dirname(scaler_path), exist_ok=True)
+
+    if customer not in train_df.columns:
+        raise ValueError(f"Không tìm thấy cột khách hàng: {customer}")
+
+    os.makedirs(models_dir, exist_ok=True)
 
     scaler = scaler_cls()
-    scaler.fit(train_df.values)
-    joblib.dump(scaler, scaler_path)
-    return scaler
 
+    # Fit scaler riêng cho chuỗi khách hàng
+    scaler.fit(train_df[[customer]].values)
+
+    # Lưu scaler riêng theo tên khách hàng
+    scaler_path = os.path.join(
+        models_dir,
+        f"scaler_{customer}.pkl"
+    )
+
+    joblib.dump(scaler, scaler_path)
+
+    print(f"Đã lưu scaler: {scaler_path}")
+
+    return scaler
 
 def transform_data(df: pd.DataFrame, scaler) -> pd.DataFrame:
     """Chuẩn hóa dữ liệu bằng scaler đã fit."""
@@ -184,24 +201,47 @@ def create_sliding_window(
     data_array: np.ndarray,
     timestamps: pd.DatetimeIndex,
     window_size: int = 24,
-    lookback_buffer: int = 0,
+    lookback_buffer: int = None,
+    n_context: int = 168,
 ):
     """Tạo cặp đầu vào X, y cho MLP/LSTM và giữ đúng timestamp nhãn mục tiêu."""
+
+    if window_size <= 0:
+        raise ValueError("window_size phải lớn hơn 0.")
+
+    if window_size > n_context:
+        raise ValueError(
+            "n_context phải >= window_size (dùng n_context=168)."
+        )
+
+    # Tự tính lookback buffer
+    if lookback_buffer is None:
+        lookback_buffer = n_context - window_size
+
+    if lookback_buffer < 0:
+        raise ValueError("lookback_buffer không được âm.")
+
     X, y, target_timestamps = [], [], []
 
     for i in range(window_size, len(data_array)):
-        X.append(data_array[i - window_size : i])
+        X.append(data_array[i - window_size:i])
         y.append(data_array[i])
         target_timestamps.append(timestamps[i])
 
     X = np.array(X)
     y = np.array(y).flatten()
-    target_timestamps = pd.DatetimeIndex(target_timestamps)
+
+    target_timestamps = pd.DatetimeIndex(
+        target_timestamps
+    )
 
     if lookback_buffer > 0:
         X = X[lookback_buffer:]
         y = y[lookback_buffer:]
-        target_timestamps = target_timestamps[lookback_buffer:]
+
+        target_timestamps = target_timestamps[
+            lookback_buffer:
+        ]
 
     return X, y, target_timestamps
 
