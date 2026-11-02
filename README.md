@@ -54,7 +54,7 @@ Dự phòng cho chuỗi chính: MT_180 (`ac_lag24` = 0,865). Loại: MT_156 (đo
 Bộ chuẩn hóa (nếu dùng) chỉ được fit trên tập train. Test chỉ đánh giá một lần sau khi chốt cấu hình.
 
 **Lưu ý dữ liệu:** các giờ nhãn 02:00 của ngày chuyển giờ (DST) có thể bất thường (chạy `python src/dst_check.py`, kết quả ở `results/tables/dst_hours.csv`). Dữ liệu được giữ nguyên, các mốc này dùng để giải thích lỗi khi phân tích lỗi.
-
+Mô tả cột của mọi tệp dữ liệu và bảng kết quả: [docs/data_dictionary.md](docs/data_dictionary.md)
 ## 3. Cấu trúc thư mục
 
 ```
