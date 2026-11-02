@@ -13,6 +13,7 @@ paths:                        # tính từ thư mục gốc dự án
   raw_file: data/raw/LD2011_2014.txt
   processed_dir: data/processed
   hourly_file: data/processed/series_hourly.csv
+  candidates_hourly_file: data/processed/candidates_hourly.csv  # cache tầng B của select_customers.py
   tables_dir: results/tables
   figures_dir: results/figures
   models_dir: models
@@ -27,14 +28,53 @@ data:
   # Nhãn thời gian là MỐC KẾT THÚC của khoảng đo. Mốc 02:00 gồm 01:15, 01:30, 01:45, 02:00.
   hourly_timestamp_convention: "right-labeled (closed='right', label='right')"
 
-# Chuỗi (khách hàng) được dùng. ĐỀ XUẤT - nhóm xác nhận trước khi chốt trong báo cáo.
+# =====================================================================
+# TIÊU CHÍ CHỌN CHUỖI KHÁCH HÀNG (src/select_customers.py)
+# Đặt ngưỡng ở đây để báo cáo trích dẫn được và chạy lại cho cùng kết quả.
+# Quy trình: 370 --(tầng A)--> qua chất lượng --(tầng C)--> shortlist --(tầng D)--> n chuỗi
+# =====================================================================
+selection:
+  # --- Tầng A: chất lượng dữ liệu thô (trên dữ liệu 15 phút) ---
+  max_leading_zero_steps: 0   # 0 = chỉ nhận chuỗi đầy đủ từ đầu 2011. Đoạn 0 ở ĐẦU chuỗi
+                              # là giai đoạn khách hàng chưa có dữ liệu, không phải tiêu thụ = 0.
+  max_zeros_after_start: 0    # số giá trị 0 nằm GIỮA chuỗi được chấp nhận (khác hẳn ý nghĩa
+                              # với đoạn 0 ở đầu, nên tách thành hai tiêu chí riêng)
+
+  # --- Tầng C: đặc trưng chuỗi theo giờ ---
+  max_const_run_h: 5          # đoạn giá trị không đổi dài nhất (giờ); dài hơn = ít thông tin để học
+  cv_min: 0.25                # quá phẳng thì baseline nào cũng đúng, bài toán mất ý nghĩa
+  cv_max: 0.85                # quá nhiễu thì dự báo một bước không còn ý nghĩa
+  min_ac_lag168: 0.80         # phải có chu kỳ tuần rõ
+  max_year_drift: 0.35        # (mean năm cao nhất - mean năm thấp nhất) / mean toàn chuỗi
+  max_split_shift: 0.25       # |mean(test) - mean(train)| / mean(train)
+
+  # --- Tầng D: chọn đại diện và chuỗi chính ---
+  n_representatives: 4        # 1 chuỗi chính + 3 chuỗi phụ. Đề bài cho phép 1-5.
+                              # Chọn 4 vì mỗi chuỗi có một vai trò riêng (chính / tổng quát
+                              # cùng quy mô / tổng quát quy mô lớn); chuỗi thứ 5 mà tầng D2
+                              # đề xuất (MT_262, 197 kW) trùng vai trò "tải lớn" với MT_294.
+  main_max_ac_lag24: 0.90     # chuỗi chính phải có ac_lag24 DƯỚI ngưỡng này: nếu cao hơn thì
+                              # Seasonal Naive 24h đã gần tối ưu, mô hình học sâu hết dư địa.
+                              # Trong số các chuỗi đạt, lấy chuỗi có ac_lag168 cao nhất.
+                              # Quy tắc này đặt TRƯỚC khi chạy mô hình.
+
+# Chuỗi (khách hàng) được dùng. Kết quả của src/select_customers.py - nhóm xác nhận
+# trước khi chốt trong báo cáo. Bảng đầy đủ: results/tables/customer_selection.csv
 customers:
-  hourly_file_columns: [MT_156, MT_158, MT_159, MT_168, MT_169]
-  main: MT_158                  # chuỗi chính: chu kỳ ngày/tuần rõ, không có giá trị 0
-  secondary: [MT_168, MT_169]   # chuỗi phụ (tùy chọn, chạy lại cùng pipeline)
-  reserve: [MT_159]             # dự phòng: mức tải giảm mạnh theo năm (lệch phân phối)
+  hourly_file_columns: [MT_158, MT_168, MT_169, MT_294]
+  main: MT_158                  # 1 trong 2 chuỗi (trên 78 chuỗi đạt tầng C) có ac_lag24 < 0,90;
+                                # ac_lag168 = 0,891 cao nhất trong nhóm đó.
+                                # Bằng chứng: results/tables/customer_main_candidates.csv
+  main_backup: MT_180           # ứng viên còn lại: ac_lag24 = 0,865, ac_lag168 = 0,833
+  secondary: [MT_168, MT_169]   # giữ lại: đã có EDA đầy đủ và là nơi bằng chứng DST rõ nhất
+  secondary_large_load: [MT_294]  # 641 kW, gấp ~8,5 lần chuỗi chính: kiểm tra tổng quát khác quy mô
   excluded:
-    MT_156: "Có đoạn không đổi dài (tới 215 giờ liên tiếp): ít thông tin để học"
+    MT_156: "Đoạn giá trị không đổi dài tới 215 giờ liên tiếp (vượt max_const_run_h = 5)"
+    MT_159: "year_drift 0,83 > 0,35 và shift_test_vs_train 0,30 > 0,25: mức tải giảm mạnh theo năm"
+  note: >
+    Tầng D2 (chọn theo mức tải) đề xuất MT_183/MT_302/MT_262/MT_294. Nhóm giữ MT_168 và
+    MT_169 vì đã khảo sát đầy đủ và là nơi bằng chứng DST rõ nhất, bổ sung MT_294 cho dải
+    tải lớn. Ghi lại để minh bạch giữa quy tắc tự động và quyết định của nhóm.
 
 # Chia train/validation/test THEO THỜI GIAN (không xáo trộn). Mốc cắt tính theo nhãn giờ (bao gồm mốc cuối).
 split:
@@ -48,6 +88,8 @@ task:
   horizon_hours: 1            # dự báo giờ kế tiếp (t+1)
   window_hours: 24            # cửa sổ đầu vào mặc định
   window_candidates: [24, 48, 168]
+  eval_context_hours: 168     # số giờ ngữ cảnh ghép trước validation/test để mọi window_hours
+                              # đều cho ra cùng 3.672 nhãn (xem create_sliding_window trong src/data.py)
 training:
   loss: mse                   # hoặc huber nếu nhiều giá trị ngoại lai
   optimizer: adam

@@ -21,9 +21,27 @@ Bài tập lớn học phần Học sâu, Trường Đại học Thủ đô Hà 
 
 - Gộp 15 phút thành 1 giờ bằng **trung bình** (giữ đơn vị kW), nhãn thời gian là **mốc kết thúc** của giờ (mốc 02:00 gồm 01:15, 01:30, 01:45, 02:00).
 - Không điền dữ liệu thiếu, không xóa giá trị 0; chỉ kiểm tra và báo lỗi.
-- Kết quả: `data/processed/series_hourly.csv` (35.064 giờ, 5 chuỗi ứng viên).
+- Kết quả: `data/processed/series_hourly.csv` (35.064 giờ, 4 chuỗi được chọn).
 
-**Chuỗi được dùng (đề xuất, nhóm xác nhận):** chính **MT_158**; phụ (tùy chọn) **MT_168, MT_169**; dự phòng MT_159; loại MT_156 (nhiều đoạn không đổi). Chi tiết và số liệu: `notebooks/01_data_exploration.ipynb`.
+**Cách chọn chuỗi** (`src/select_customers.py`, ngưỡng ở mục `selection` trong `configs/config.yaml`):
+
+| Tầng | Lọc | Còn lại |
+|---|---|---|
+| A | chất lượng dữ liệu thô: thiếu, âm, bắt đầu muộn, giá trị 0 giữa chuỗi | 370 → 90 |
+| C | đặc trưng theo giờ: đoạn phẳng, cv, chu kỳ tuần, dịch mức tải | 90 → 78 |
+| D1 | chuỗi chính: `ac_lag168` cao nhất trong nhóm `ac_lag24 < 0,90` | 78 → 1 |
+| D2 | chuỗi phụ trải đều theo mức tải | 78 → 3 |
+
+**Chuỗi được dùng (4 chuỗi, đề bài cho phép 1–5):**
+
+| Chuỗi | Mức tải | Vai trò |
+|---|---|---|
+| **MT_158** | 76 kW | **chuỗi chính** — 1 trong 2 chuỗi (trên 78) có `ac_lag24 < 0,90`, tức Seasonal Naive 24h chưa chiếm hết dư địa cải thiện |
+| MT_169 | 40 kW | tổng quát quy mô nhỏ + bằng chứng DST |
+| MT_168 | 137 kW | tổng quát cùng quy mô + bằng chứng DST rõ nhất |
+| MT_294 | 641 kW | tổng quát ở quy mô gấp ~8,5 lần chuỗi chính |
+
+Dự phòng cho chuỗi chính: MT_180 (`ac_lag24` = 0,865). Loại: MT_156 (đoạn không đổi 215 giờ), MT_159 (`year_drift` 0,83). Bằng chứng: `results/tables/customer_main_candidates.csv`, `customer_selection.csv`, `customer_shortlist.csv`. Chi tiết: `notebooks/01_data_exploration.ipynb`.
 
 **Chia tập theo thời gian (không xáo trộn), cấu hình trong `configs/config.yaml`:**
 
@@ -48,13 +66,12 @@ BTL_DuBaoDienNang/
 ├── src/
 │   ├── config.py              # đọc cấu hình, set_seed
 │   ├── download_data.py       # tải dữ liệu gốc
-│   ├── data_preprocessing.py  # 15 phút -> theo giờ
+│   ├── select_customers.py    # chọn chuỗi theo 4 tầng tiêu chí (370 -> 4)
+│   ├── data_preprocessing.py  # 15 phút -> theo giờ, cho các chuỗi đã chọn
 │   ├── data.py                # đọc dữ liệu giờ, chia train/validation/test
 │   ├── dst_check.py           # liệt kê giờ bất thường ngày chuyển giờ
-│   ├── baseline.py            # (đang phát triển) baseline
-│   ├── metrics.py             # (đang phát triển) MAE, RMSE, MASE
-│   └── check_customers.py, compare_customers.py,
-│       analyze_selected_customer.py, data_exploration.py   # script khảo sát ban đầu (đọc dữ liệu gốc)
+│   ├── baseline.py            # Last Value, Moving Average, Seasonal Naive 24/168
+│   └── metrics.py             # MAE, RMSE, MASE, gom nhóm sai số theo giờ/thứ/tháng
 ├── notebooks/01_data_exploration.ipynb
 ├── models/                    # mô hình đã lưu (lớn thì để Drive, ghi link ở mục 6)
 ├── results/figures/, results/tables/
@@ -71,11 +88,18 @@ python -m venv .venv
 pip install -r requirements.txt
 
 python src/download_data.py          # hoặc đặt thủ công LD2011_2014.txt vào data/raw/
-python src/data_preprocessing.py     # tạo data/processed/series_hourly.csv
+python src/select_customers.py       # chọn chuỗi (370 -> 4), tạo 4 bảng trong results/tables/
+python src/data_preprocessing.py     # tạo data/processed/series_hourly.csv cho các chuỗi đã chọn
 python src/data.py                   # chia train/validation/test, tạo results/tables/split_summary.csv
 python src/dst_check.py              # tạo results/tables/dst_hours.csv
+python -m pytest tests -q            # kiểm tra baseline và metric
 jupyter notebook notebooks/01_data_exploration.ipynb
+jupyter notebook notebooks/02_baseline.ipynb
 ```
+
+`select_customers.py` đọc file gốc 700 MB nên chạy chậm; lần sau chỉ cần đổi ngưỡng rồi chạy
+`python src/select_customers.py --cached` (dùng lại `data/processed/candidates_hourly.csv`, vài giây).
+Chỉ chạy lại `data_preprocessing.py` khi `customers.hourly_file_columns` trong config thay đổi.
 
 Nhóm cần chốt framework học sâu (TensorFlow hoặc PyTorch) và ghi phiên bản vào `requirements.txt`; trước khi chốt, kiểm tra framework hỗ trợ phiên bản Python đang dùng.
 

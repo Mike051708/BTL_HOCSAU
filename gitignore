@@ -1,0 +1,23 @@
+# Môi trường ảo và cache Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Dữ liệu gốc dung lượng lớn (~700 MB): không đưa lên Git.
+# Tải bằng: python src/download_data.py (xem README.md)
+data/raw/
+
+# Cache tầng B của src/select_customers.py (~30 MB, tái tạo bằng một lệnh)
+data/processed/candidates_hourly.csv
+
+# Mô hình/checkpoint lớn: lưu trên Drive/Hugging Face và ghi link trong README
+models/*
+!models/.gitkeep
+
+# Tệp hệ thống / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

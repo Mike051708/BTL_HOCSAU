@@ -132,15 +132,12 @@ def main():
     print(f"\nĐã lưu: {out_dir}/train.csv, validation.csv, test.csv")
     print(f"Đã lưu: {tables_dir / 'split_summary.csv'}")
     print("Lưu ý: scaler (nếu dùng) phải được fit CHỈ trên tập train.")
-    
+
+
 def get_lookback_context(
     full_df: pd.DataFrame, eval_df: pd.DataFrame, lookback_hours: int = 168
 ) -> pd.DataFrame:
-    """Tạo Lookback Buffer (ví dụ 168h) lấy từ quá khứ cho tập Validation/Test.
-
-    Giúp Seasonal Naive 168h không bị thiếu dữ liệu ở các mẫu đầu tập
-    val/test.
-    """
+    """Tạo Lookback Buffer (ví dụ 168h) lấy từ quá khứ cho tập Validation/Test."""
     start_idx = eval_df.index.min()
     loc = full_df.index.get_loc(start_idx)
     context_start_loc = max(0, loc - lookback_hours)
@@ -155,7 +152,6 @@ def fit_and_save_scaler(
     scaler_cls=None,
 ):
     """Fit scaler chỉ trên tập Train của một khách hàng."""
-
     from sklearn.preprocessing import StandardScaler
 
     scaler_cls = scaler_cls or StandardScaler
@@ -164,7 +160,6 @@ def fit_and_save_scaler(
         raise ValueError(f"Không tìm thấy cột khách hàng: {customer}")
 
     os.makedirs(models_dir, exist_ok=True)
-
     scaler = scaler_cls()
 
     # Fit scaler riêng cho chuỗi khách hàng
@@ -177,10 +172,10 @@ def fit_and_save_scaler(
     )
 
     joblib.dump(scaler, scaler_path)
-
     print(f"Đã lưu scaler: {scaler_path}")
 
     return scaler
+
 
 def transform_data(df: pd.DataFrame, scaler) -> pd.DataFrame:
     """Chuẩn hóa dữ liệu bằng scaler đã fit."""
@@ -238,10 +233,7 @@ def create_sliding_window(
     if lookback_buffer > 0:
         X = X[lookback_buffer:]
         y = y[lookback_buffer:]
-
-        target_timestamps = target_timestamps[
-            lookback_buffer:
-        ]
+        target_timestamps = target_timestamps[lookback_buffer:]
 
     return X, y, target_timestamps
 

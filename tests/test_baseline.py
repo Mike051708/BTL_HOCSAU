@@ -157,6 +157,75 @@ def test_transform_data_uses_fitted_scaler():
 
     assert transformed.shape == train_df.shape
     assert np.asarray(transformed).mean() == pytest.approx(0.0, abs=1e-7)
+    # --------------------------------------------------
+# 5. Kiểm tra chia tập theo thời gian
+# --------------------------------------------------
+
+def test_split_by_time_no_overlap():
+    """Train, validation và test không được chồng lấn thời gian."""
+    from src.data import split_by_time
+
+    dates = pd.date_range(
+        "2021-01-01",
+        periods=10,
+        freq="h",
+    )
+
+    df = pd.DataFrame(
+        {"MT_158": np.arange(10, dtype=float)},
+        index=dates,
+    )
+
+    cfg = {
+        "split": {
+            "train_end": "2021-01-01 03:00:00",
+            "val_end": "2021-01-01 06:00:00",
+            "expected_rows": {
+                "train": 4,
+                "validation": 3,
+                "test": 3,
+            },
+        }
+    }
+
+    train, validation, test = split_by_time(df, cfg)
+
+    assert len(train) == 4
+    assert len(validation) == 3
+    assert len(test) == 3
+
+    assert train.index.max() < validation.index.min()
+    assert validation.index.max() < test.index.min()
+
+    assert train.index.max() == dates[3]
+    assert validation.index.min() == dates[4]
+    assert test.index.min() == dates[7]
+def test_scaler_does_not_fit_on_validation_or_test(tmp_path):
+    """Scaler chỉ fit trên train, không fit validation/test."""
+    train_df = pd.DataFrame({
+        "MT_158": [10.0, 20.0, 30.0],
+    })
+
+    validation_df = pd.DataFrame({
+        "MT_158": [100.0, 200.0],
+    })
+
+    test_df = pd.DataFrame({
+        "MT_158": [1000.0, 2000.0],
+    })
+
+    scaler = fit_and_save_scaler(
+        train_df=train_df,
+        customer="MT_158",
+        models_dir=tmp_path,
+    )
+
+    # Mean chỉ được tính từ train: (10 + 20 + 30) / 3 = 20
+    assert scaler.mean_[0] == pytest.approx(20.0)
+
+    # Validation và test không làm thay đổi scaler đã fit.
+    assert scaler.mean_[0] != pytest.approx(validation_df["MT_158"].mean())
+    assert scaler.mean_[0] != pytest.approx(test_df["MT_158"].mean())
     
     
     
