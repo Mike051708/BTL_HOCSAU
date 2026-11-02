@@ -11,6 +11,7 @@ data/raw/
 
 # Mô hình/checkpoint lớn: lưu trên Drive/Hugging Face và ghi link trong README
 models/*
+!models/scaler_*.pkl
 !models/.gitkeep
 
 # Tệp hệ thống / IDE
