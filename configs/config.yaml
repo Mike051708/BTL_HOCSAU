@@ -37,8 +37,10 @@ selection:
   # --- Tầng A: chất lượng dữ liệu thô (trên dữ liệu 15 phút) ---
   max_leading_zero_steps: 0   # 0 = chỉ nhận chuỗi đầy đủ từ đầu 2011. Đoạn 0 ở ĐẦU chuỗi
                               # là giai đoạn khách hàng chưa có dữ liệu, không phải tiêu thụ = 0.
-  max_zeros_after_start: 0    # số giá trị 0 nằm GIỮA chuỗi được chấp nhận (khác hẳn ý nghĩa
-                              # với đoạn 0 ở đầu, nên tách thành hai tiêu chí riêng)
+  max_zeros_after_start: 999999   # KHÔNG lọc theo số 0 giữa chuỗi: đó là tiêu thụ thật
+                                  # bằng 0, một quan sát hợp lệ. Chuỗi có đoạn 0 kéo dài
+                                  # (công tơ chết) đã bị tầng C bắt bằng const_run_max_h
+                                  # và cv, nơi tiêu chí có lý do rõ ràng hơn.
 
   # --- Tầng C: đặc trưng chuỗi theo giờ ---
   max_const_run_h: 5          # đoạn giá trị không đổi dài nhất (giờ); dài hơn = ít thông tin để học
@@ -50,9 +52,9 @@ selection:
 
   # --- Tầng D: chọn đại diện và chuỗi chính ---
   n_representatives: 4        # 1 chuỗi chính + 3 chuỗi phụ. Đề bài cho phép 1-5.
-                              # Chọn 4 vì mỗi chuỗi có một vai trò riêng (chính / tổng quát
-                              # cùng quy mô / tổng quát quy mô lớn); chuỗi thứ 5 mà tầng D2
-                              # đề xuất (MT_262, 197 kW) trùng vai trò "tải lớn" với MT_294.
+                              # Ba chuỗi phụ trải trên ba mức tải khác nhau là đủ để kiểm tra
+                              # tính tổng quát của pipeline; thêm chuỗi thứ tư chỉ lặp lại
+                              # một dải tải đã có, không trả lời thêm câu hỏi nào.
   main_max_ac_lag24: 0.90     # chuỗi chính phải có ac_lag24 DƯỚI ngưỡng này: nếu cao hơn thì
                               # Seasonal Naive 24h đã gần tối ưu, mô hình học sâu hết dư địa.
                               # Trong số các chuỗi đạt, lấy chuỗi có ac_lag168 cao nhất.
@@ -61,20 +63,27 @@ selection:
 # Chuỗi (khách hàng) được dùng. Kết quả của src/select_customers.py - nhóm xác nhận
 # trước khi chốt trong báo cáo. Bảng đầy đủ: results/tables/customer_selection.csv
 customers:
-  hourly_file_columns: [MT_158, MT_168, MT_169, MT_294]
-  main: MT_158                  # 1 trong 2 chuỗi (trên 78 chuỗi đạt tầng C) có ac_lag24 < 0,90;
-                                # ac_lag168 = 0,891 cao nhất trong nhóm đó.
+  hourly_file_columns: [MT_234, MT_217, MT_162, MT_314]
+  main: MT_162                  # 1 trong 4 chuỗi (trên 122 chuỗi đạt tầng C) có ac_lag24 < 0,90,
+                                # và có ac_lag168 cao nhất trong nhóm đó: 0,946.
+                                # ac_lag24 = 0,569 - chu kỳ ngày KHÔNG lặp máy móc, nên Seasonal
+                                # Naive 24h chưa chiếm hết dư địa của mô hình học sâu.
                                 # Bằng chứng: results/tables/customer_main_candidates.csv
-  main_backup: MT_180           # ứng viên còn lại: ac_lag24 = 0,865, ac_lag168 = 0,833
-  secondary: [MT_168, MT_169]   # giữ lại: đã có EDA đầy đủ và là nơi bằng chứng DST rõ nhất
-  secondary_large_load: [MT_294]  # 641 kW, gấp ~8,5 lần chuỗi chính: kiểm tra tổng quát khác quy mô
-  excluded:
-    MT_156: "Đoạn giá trị không đổi dài tới 215 giờ liên tiếp (vượt max_const_run_h = 5)"
-    MT_159: "year_drift 0,83 > 0,35 và shift_test_vs_train 0,30 > 0,25: mức tải giảm mạnh theo năm"
+  main_backup: MT_124           # ứng viên kế tiếp: ac_lag24 = 0,892, ac_lag168 = 0,930
+  secondary: [MT_234, MT_217, MT_314]
+                                # 88 / 214 / 1.121 kW - trải trên ba mức tải để kiểm tra tính
+                                # tổng quát của pipeline ở các quy mô khách hàng khác nhau.
+                                # Chuỗi chính MT_162 ở mức 289 kW.
+  # Lý do loại của TỪNG chuỗi trong 370 chuỗi nằm ở cột stage_a_reason và stage_c_reason
+  # của results/tables/customer_quality_all.csv và customer_shortlist.csv.
   note: >
-    Tầng D2 (chọn theo mức tải) đề xuất MT_183/MT_302/MT_262/MT_294. Nhóm giữ MT_168 và
-    MT_169 vì đã khảo sát đầy đủ và là nơi bằng chứng DST rõ nhất, bổ sung MT_294 cho dải
-    tải lớn. Ghi lại để minh bạch giữa quy tắc tự động và quyết định của nhóm.
+    Bộ chuỗi này là kết quả chạy lại sau khi nhóm BỎ tiêu chí lọc theo số 0 giữa chuỗi ở
+    tầng A (xem max_zeros_after_start ở trên). Bộ cũ - chính MT_158, phụ MT_168/MT_169/MT_294 -
+    sinh ra từ tiêu chí đã bị loại bỏ đó: MT_162 có 45 giá trị 0 giữa chuỗi nên luật cũ gạt
+    mất ngay từ tầng A, dù quy trình hiện tại xếp nó đứng đầu. Sau khi sửa, số chuỗi qua tầng A
+    tăng từ 90 lên 158 và qua tầng C tăng từ 78 lên 122. Nhóm theo đúng kết quả của quy tắc,
+    không giữ lại bộ cũ, vì quy tắc được đặt ra trước khi chạy mô hình và giá trị của nó nằm
+    ở chỗ không bị uốn theo kết quả.
 
 # Chia train/validation/test THEO THỜI GIAN (không xáo trộn). Mốc cắt tính theo nhãn giờ (bao gồm mốc cuối).
 split:
@@ -103,3 +112,14 @@ training:
 dst:
   march: ["2011-03-27", "2012-03-25", "2013-03-31", "2014-03-30"]
   october: ["2011-10-30", "2012-10-28", "2013-10-27", "2014-10-26"]
+  ref_percentile: 1.0         # Ngưỡng đánh dấu bất thường KHÔNG đặt cứng mà lấy từ phân vị
+                              # p và (100-p) của chính chuỗi đang xét, trên phân bố tỷ lệ
+                              # "giờ 02:00 / trung bình giờ 01:00 và 03:00" của ~1.453 ngày
+                              # thường. Mỗi chuỗi vì thế có ngưỡng riêng theo độ biến động
+                              # của nó.
+                              # Vì sao p = 1: theo định nghĩa phân vị, 2p% số ngày THƯỜNG
+                              # cũng nằm ngoài khoảng. Mỗi chuỗi có 8 ngày chuyển giờ nên
+                              # số lần báo nhầm kỳ vọng là 8 x 2p/100:
+                              #   p = 5 -> 0,80 lần (gần 1, quá lỏng)
+                              #   p = 1 -> 0,16 lần (đủ chặt)
+                              # Chọn p = 1 để báo nhầm kỳ vọng dưới 1 lần mỗi chuỗi.

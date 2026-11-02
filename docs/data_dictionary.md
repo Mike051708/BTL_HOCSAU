@@ -13,6 +13,8 @@ Phục vụ yêu cầu "tài liệu mô tả cột, đơn vị, cách xử lý t
 | Khoảng thời gian | Dữ liệu theo giờ: `2011-01-01 01:00` đến `2015-01-01 00:00`, đúng 35.064 giờ, cách đều 1 giờ, không trùng, không thiếu. |
 | Mã khách hàng | `MT_001` đến `MT_370`, ẩn danh. Không có thông tin định danh. |
 | Dữ liệu thiếu | **Không điền, không xóa.** Mọi hàm chỉ kiểm tra và báo lỗi. Trong các tệp dưới đây, mọi cột số đều không có giá trị thiếu. |
+| Giá trị 0 | **Không xóa, không thay thế.** Số 0 ở **đầu** chuỗi = khách hàng chưa tồn tại; số 0 **giữa** chuỗi = tiêu thụ thật bằng 0, là quan sát hợp lệ. Hai loại này được phân biệt bằng hai cột riêng trong `customer_quality_all.csv`. |
+| Độ chính xác số | Dữ liệu thô được đọc ở **float64**. Không dùng float32 vì `const_run_max_h` so sánh bằng tuyệt đối, sai số float32 sinh ra đoạn không đổi giả. |
 | Mã hóa tệp | CSV, UTF-8 có BOM (`utf-8-sig`), dấu phẩy phân cách. Riêng dữ liệu **gốc** của UCI dùng dấu chấm phẩy và dấu phẩy thập phân. |
 | Hậu tố `_15min` / `_hourly` / `_kW` | Chỉ rõ chỉ số được tính trên dữ liệu 15 phút hay dữ liệu theo giờ. |
 
@@ -38,12 +40,14 @@ Sinh bởi `src/data_preprocessing.py`. 35.064 dòng.
 | Cột | Kiểu | Đơn vị | Mô tả |
 |---|---|---|---|
 | `timestamp` | datetime | — | Mốc kết thúc của giờ |
-| `MT_158` | số thực | kW | Chuỗi **chính**, trung bình 4 mốc 15 phút |
-| `MT_168` | số thực | kW | Chuỗi phụ, mức tải trung bình |
-| `MT_169` | số thực | kW | Chuỗi phụ, mức tải nhỏ |
-| `MT_294` | số thực | kW | Chuỗi phụ, mức tải lớn |
+| `MT_234` | số thực | kW | Chuỗi phụ, mức tải nhỏ (88 kW) |
+| `MT_217` | số thực | kW | Chuỗi phụ, mức tải trung bình (214 kW) |
+| `MT_162` | số thực | kW | Chuỗi **chính** (289 kW), trung bình 4 mốc 15 phút |
+| `MT_314` | số thực | kW | Chuỗi phụ, mức tải lớn (1.121 kW) |
 
-Danh sách cột lấy từ `customers.hourly_file_columns` trong `configs/config.yaml`; đổi danh sách thì chạy lại `data_preprocessing.py`.
+Thứ tự cột trong tệp theo `customers.hourly_file_columns` trong `configs/config.yaml`; đổi danh sách thì chạy lại `data_preprocessing.py`.
+
+Lưu ý: `MT_162` có **4 giờ bằng 0** (2012-03-25 02:00, 2012-10-28 02:00, 2013-05-06 10:00, 2013-10-07 10:00). Hai mốc đầu là ngày chuyển giờ; hai mốc sau là tiêu thụ thật bằng 0. Cả bốn đều trong tập train. Ba chuỗi còn lại không có giờ nào bằng 0.
 
 ### `data/processed/train.csv`, `validation.csv`, `test.csv`
 
@@ -57,8 +61,10 @@ Sinh bởi `src/data.py`. Cột **giống hệt** `series_hourly.csv`, chỉ kh�
 
 ### `data/processed/candidates_hourly.csv` — bộ nhớ đệm
 
-Không nằm trong Git (~30 MB). `timestamp` + một cột kW mỗi chuỗi qua tầng A (90 cột).
+Không nằm trong Git (~50 MB). `timestamp` + một cột kW mỗi chuỗi qua tầng A (**158 cột**).
 Chỉ dùng cho `python src/select_customers.py --cached`; tái tạo được bằng một lệnh.
+
+Giá trị trong tệp này **phải trùng khít** `series_hourly.csv` ở bốn cột dùng chung, vì cả hai dùng cùng quy ước gộp giờ (`closed="right", label="right"`). Nếu lệch, kiểm tra lại kiểu dữ liệu khi đọc file thô.
 
 ---
 
@@ -76,17 +82,19 @@ Năm bảng dưới đây do `src/select_customers.py` sinh ra. Ngưỡng ở m�
 | `negative_count` | số nguyên | Số giá trị âm |
 | `leading_zero_steps` | số nguyên | Số mốc bằng 0 **liên tiếp ở đầu** chuỗi — giai đoạn khách hàng chưa có dữ liệu |
 | `leading_zero_days` | số thực | `leading_zero_steps / 96`, quy đổi ra ngày cho dễ đọc |
-| `zeros_after_start` | số nguyên | Số giá trị 0 **nằm giữa** chuỗi — ý nghĩa khác hẳn cột trên |
+| `zeros_after_start` | số nguyên | Số giá trị 0 **nằm giữa** chuỗi — tiêu thụ thật bằng 0, ý nghĩa khác hẳn cột trên |
 | `mean_15min` | số thực (kW) | Trung bình toàn chuỗi |
 | `pass_no_missing` | luận lý | `missing_count == 0` |
 | `pass_no_negative` | luận lý | `negative_count == 0` |
 | `pass_full_from_2011` | luận lý | `leading_zero_steps <= max_leading_zero_steps` |
-| `pass_no_inner_zero` | luận lý | `zeros_after_start <= max_zeros_after_start` |
+| `pass_no_inner_zero` | luận lý | `zeros_after_start <= max_zeros_after_start`. **Tiêu chí này đã được vô hiệu hóa có chủ đích:** `max_zeros_after_start` đặt rất lớn trong config nên cột luôn `True`. Giữ cột lại để người đọc thấy nhóm đã cân nhắc và quyết định không loại theo số 0 giữa chuỗi |
 | `pass_positive_mean` | luận lý | `mean_15min > 0` |
 | `stage_a_pass` | luận lý | Đạt **mọi** tiêu chí `pass_*` ở trên |
 | `stage_a_reason` | chuỗi | Rỗng nếu đạt; nếu trượt thì liệt kê tên tiêu chí trượt, cách nhau bằng dấu phẩy |
 
-### `customer_features_hourly.csv` — tầng B, các chuỗi qua tầng A
+Kết quả: **370 → 158** chuỗi. Cả 212 chuỗi bị loại đều chỉ vì một lý do: `full_from_2011`.
+
+### `customer_features_hourly.csv` — tầng B, các chuỗi qua tầng A (158 dòng)
 
 | Cột | Kiểu | Mô tả |
 |---|---|---|
@@ -103,7 +111,9 @@ Năm bảng dưới đây do `src/select_customers.py` sinh ra. Ngưỡng ở m�
 | `shift_test_vs_train` | số thực ≥ 0 | Như trên, cho tập test. Cao = lệch phân phối giữa huấn luyện và kiểm thử |
 | `weekday_weekend_ratio` | số thực | Trung bình ngày thường chia trung bình cuối tuần. Cao = chu kỳ tuần rõ |
 
-### `customer_shortlist.csv` — tầng C, các chuỗi đạt
+**Cột nào được dùng làm tiêu chí lọc:** chỉ `const_run_max_h`, `cv`, `ac_lag168`, `year_drift`, `shift_test_vs_train` (tầng C), cộng `ac_lag24` (tầng D1) và `mean_kW` (tầng D2). Các cột còn lại (`std_kW`, `max_kW`, `const_runs_ge_6h`, `ac_lag1`, `shift_val_vs_train`, `weekday_weekend_ratio`) **chỉ để tham khảo**, không tham gia vào việc chọn chuỗi.
+
+### `customer_shortlist.csv` — tầng C, các chuỗi đạt (122 dòng)
 
 Mọi cột của `customer_features_hourly.csv`, **cộng thêm**:
 
@@ -117,13 +127,15 @@ Mọi cột của `customer_features_hourly.csv`, **cộng thêm**:
 | `stage_c_pass` | luận lý | Đạt mọi tiêu chí `pass_*` của tầng C |
 | `stage_c_reason` | chuỗi | Tên các tiêu chí trượt, rỗng nếu đạt |
 
-Bảng đã sắp xếp giảm dần theo `ac_lag168`.
+Bảng đã sắp xếp giảm dần theo `ac_lag168`. Kết quả: **158 → 122**; 36 chuỗi bị loại, nhiều nhất là 19 chuỗi vì `no_flat`.
 
 ### `customer_main_candidates.csv` — tầng D1, ứng viên chuỗi chính
 
-Các chuỗi có `ac_lag24 < main_max_ac_lag24`, sắp xếp giảm dần theo `ac_lag168`. **Dòng đầu là chuỗi chính được chọn.**
+Các chuỗi có `ac_lag24 < main_max_ac_lag24` (= 0,90), sắp xếp giảm dần theo `ac_lag168`. **Dòng đầu là chuỗi chính được chọn.**
 
 Cột: `customer`, `mean_kW`, `cv`, `ac_lag24`, `ac_lag168`, `year_drift`, `shift_test_vs_train` — ý nghĩa như bảng tầng B.
+
+Chỉ **4 trên 122** chuỗi thỏa điều kiện: MT_162 (0,569 / 0,946), MT_124 (0,892 / 0,930), MT_158 (0,560 / 0,891), MT_180 (0,865 / 0,833). Chọn MT_162; dự phòng MT_124.
 
 ### `customer_selection.csv` — kết quả cuối, các chuỗi được dùng
 
@@ -134,6 +146,23 @@ Cột: `customer`, `mean_kW`, `cv`, `ac_lag24`, `ac_lag168`, `year_drift`, `shif
 | `mean_kW`, `cv`, `const_run_max_h`, `ac_lag24`, `ac_lag168`, `year_drift`, `shift_test_vs_train` | | Ý nghĩa như bảng tầng B |
 
 Sắp xếp tăng dần theo `mean_kW`.
+
+### `do_nhay_nguong.csv` — kiểm tra độ nhạy của ngưỡng
+
+Sinh bởi `python kiem_tra_do_nhay.py` (chạy ở thư mục gốc, cần có `candidates_hourly.csv`).
+Một dòng cho mỗi bộ ngưỡng thử; mỗi lần đổi **một** ngưỡng, giữ nguyên các ngưỡng còn lại.
+
+| Cột | Kiểu | Mô tả |
+|---|---|---|
+| `ngưỡng` | chuỗi | Tên ngưỡng được đổi trong lần thử này |
+| `giá trị` | số | Giá trị thử |
+| `đang dùng` | chuỗi | `<--` nếu đây là giá trị đang dùng trong config |
+| `qua tầng C` | số nguyên | Số chuỗi qua tầng C với bộ ngưỡng này |
+| `ứng viên chính` | số nguyên | Số chuỗi thỏa `ac_lag24 < main_max_ac_lag24` |
+| `chuỗi chính` | chuỗi | Chuỗi chính được chọn, hoặc `(rỗng)` nếu không chuỗi nào qua tầng C |
+| `khớp gốc` | chuỗi | `có` nếu trùng chuỗi chính của bộ ngưỡng đang dùng, `KHÁC` nếu không |
+
+Kết quả: **36/37** bộ ngưỡng chọn MT_162.
 
 ---
 
@@ -177,13 +206,15 @@ Sinh bởi `src/data.py`. Ba dòng, mỗi dòng một tập.
 | `rows` | số nguyên | Số giờ trong tập |
 | `percent` | số thực | Tỷ lệ phần trăm trên tổng số giờ |
 | `start`, `end` | datetime | Mốc đầu và mốc cuối của tập (bao gồm) |
-| `mean_MT_158`, `mean_MT_168`, `mean_MT_169`, `mean_MT_294` | số thực (kW) | Trung bình của từng chuỗi **trong tập đó** — dùng để thấy lệch phân phối giữa các tập |
+| `mean_MT_234`, `mean_MT_217`, `mean_MT_162`, `mean_MT_314` | số thực (kW) | Trung bình của từng chuỗi **trong tập đó** — dùng để thấy lệch phân phối giữa các tập |
 
 Số cột `mean_*` thay đổi theo `customers.hourly_file_columns` trong config.
 
+Giá trị của chuỗi chính MT_162: train 293,5 — validation 255,1 — test 285,0 kW. Validation thấp hơn train ~13%, test chỉ thấp hơn 3%: cần nêu trong phần hạn chế.
+
 ### `results/tables/dst_hours.csv`
 
-Sinh bởi `src/dst_check.py`. Một dòng cho mỗi cặp (ngày chuyển giờ × chuỗi).
+Sinh bởi `src/dst_check.py`. Một dòng cho mỗi cặp (ngày chuyển giờ × chuỗi) — 8 ngày × 4 chuỗi = 32 dòng.
 
 | Cột | Kiểu | Mô tả |
 |---|---|---|
@@ -194,7 +225,18 @@ Sinh bởi `src/dst_check.py`. Một dòng cho mỗi cặp (ngày chuyển giờ
 | `customer` | chuỗi | Mã khách hàng |
 | `value_01h`, `value_02h`, `value_03h` | số thực (kW) | Giá trị tại nhãn 01:00, 02:00 và 03:00 |
 | `ratio_vs_neighbors` | số thực | `value_02h` chia trung bình hai giờ lân cận. Nhỏ hơn 1 nhiều = giờ bị thiếu; lớn hơn 1 nhiều = hai giờ bị gộp |
-| `suggest_check` | luận lý | **Gợi ý**, không phải kết luận. Với chuỗi biến động mạnh, ngày thường cũng có thể đạt ngưỡng |
+| `ref_low`, `ref_high` | số thực | Cận dưới và cận trên của khoảng bình thường, **lấy từ chính chuỗi đó**: phân vị `dst.ref_percentile` và `100 − ref_percentile` của phân bố `ratio_vs_neighbors` trên mọi ngày thường. In kèm để người đọc tự kiểm chứng |
+| `n_ngay_tham_chieu` | số nguyên | Số ngày thường dùng để tính hai cận (≈1.453). Dưới 100 ngày thì không đánh dấu theo tỷ lệ vì phân vị không đáng tin |
+| `suggest_check` | luận lý | **Gợi ý**, không phải kết luận. `True` khi `reason` không rỗng |
+| `reason` | chuỗi | Lý do đánh dấu: `giá trị bằng 0`, `thấp bất thường so với chính chuỗi này`, `cao bất thường so với chính chuỗi này`, hoặc rỗng |
+
+**Ngưỡng không đặt cứng.** Phiên bản trước dùng một cặp ngưỡng chung cho mọi chuỗi (`ratio < 0,5` hoặc `> 1,3`); hai con số đó không có cơ sở, và áp một ngưỡng chung là sai nguyên tắc — chuỗi biến động mạnh thì ngày thường cũng vượt ngưỡng (báo nhầm), chuỗi rất đều thì bất thường thật lại không vượt (bỏ sót). Phiên bản hiện tại lấy ngưỡng từ phân bố của chính chuỗi, nên câu trả lời cho "tại sao đánh dấu giờ này" là *vì nó bất thường so với chính chuỗi này*.
+
+**Vì sao phân vị 1** (`dst.ref_percentile: 1.0` trong config): theo định nghĩa phân vị, 2p% số ngày thường cũng nằm ngoài khoảng — đó là tỷ lệ báo nhầm chấp nhận trước. Mỗi chuỗi có 8 ngày chuyển giờ, nên số lần báo nhầm kỳ vọng là `8 × 2p/100`: với p = 5 là 0,80 lần (gần 1, quá lỏng), với p = 1 là 0,16 lần (đủ chặt). Ngưỡng suy ra từ số ngày có trong dữ liệu, không chọn theo cảm tính.
+
+Kết quả: cả bốn chuỗi đều có **6 trên 8** ngày bị đánh dấu. Riêng MT_162 (khoảng 0,96–1,50): hai ngày năm 2011 bình thường; 2012-03-25 và 2012-10-28 giá trị bằng 0; 2013-03-31 và 2014-03-30 thấp bất thường; 2013-10-27 và 2014-10-26 cao bất thường. Mốc tháng 3/2014 nằm trong **validation**, mốc tháng 10/2014 nằm trong **test**.
+
+Một ngoại lệ đáng ghi: **2012-10-28** là ngày tháng 10 (đáng ra giá trị *tăng* vì gộp hai giờ) nhưng giá trị lại **bằng 0** — tài liệu và dữ liệu không khớp hoàn toàn ở mốc này.
 
 ### `results/tables/customer_comparison_hourly.csv`
 
@@ -202,6 +244,8 @@ Sinh bởi `notebooks/01_data_exploration.ipynb` (mục 3). Xuất hiện sau kh
 Cùng ý nghĩa với bảng tầng B nhưng đặt tên tiếng Việt, chỉ cho các chuỗi đang dùng:
 `customer`, `mean_kW`, `cv(std/mean)`, `max_kW`, `giờ_không_đổi_dài_nhất`, `số_đoạn_không_đổi_>=6h`,
 `autocorr_lag1`, `autocorr_lag24`, `autocorr_lag168`.
+
+Cột `giờ_không_đổi_dài_nhất` dùng **cùng một hàm** `longest_constant_run` mà tầng C dùng để lọc (notebook import từ `src.select_customers`), nên nó phải trùng `const_run_max_h` trong `customer_selection.csv`: MT_234 = 2, MT_217 = 1, MT_162 = 1, MT_314 = 3. Lệch nhau là dấu hiệu hai pipeline đọc dữ liệu khác nhau.
 
 ---
 
@@ -217,6 +261,8 @@ Sinh bởi `notebooks/02_baseline.ipynb`, liệt kê ở đây để tài liệu
 | `y_ma3` | Moving Average 3 giờ | trung bình của `x(t−3)`, `x(t−2)`, `x(t−1)` |
 | `y_snaive24` | Seasonal Naive 24 giờ | `x(t−24)` — cùng giờ hôm qua |
 | `y_snaive168` | Seasonal Naive 168 giờ | `x(t−168)` — cùng giờ tuần trước |
+
+Với chuỗi chính MT_162, `ac_lag168` (0,946) cao hơn hẳn `ac_lag24` (0,569), nên Seasonal Naive 168 được kỳ vọng tốt hơn Seasonal Naive 24. `ac_lag1` = 0,848 nên Last Value cũng là đối thủ mạnh.
 
 ### `results/baseline_predictions_validation.csv`, `baseline_predictions_test.csv`
 
@@ -255,6 +301,19 @@ Như trên, gộp validation và test, thêm cột `split` (`validation` hoặc 
 | `MAE`, `RMSE` | số thực (kW) | Sai số trong nhóm đó |
 | `N_samples` | số nguyên | Số mốc trong nhóm. Với `dayofweek`, số mốc **không đều** giữa các thứ vì hai ngày biên của tập test bị cắt |
 
+Với MT_162, hai mốc giá trị đổi nhanh nhất trong ngày là **nhãn 03** (424 → 232 kW) và **nhãn 09** (211 → 387 kW); dự đoán sai số sẽ lớn nhất ở hai giờ này. Đây là **dự đoán cần kiểm chứng** bằng chính bảng này, không phải kết luận.
+
+### `results/tables/baseline_test_residuals.csv`
+
+| Cột | Kiểu | Mô tả |
+|---|---|---|
+| `timestamp` | datetime | Mốc được dự báo trong tập test |
+| `y_true` | số thực (kW) | Giá trị thực tế |
+| `y_pred` | số thực (kW) | Dự báo của baseline tốt nhất theo validation |
+| `residual` | số thực (kW) | `y_true − y_pred`, giữ dấu |
+
+Khác `top10_worst_errors.csv` ở chỗ giữ **toàn bộ** 3.672 mốc, không chỉ 10 mốc tệ nhất — dùng để vẽ phân phối sai số và kiểm tra sai số có lệch về một phía không.
+
 ### `results/tables/top10_worst_errors.csv`
 
 | Cột | Kiểu | Mô tả |
@@ -271,7 +330,7 @@ Như trên, gộp validation và test, thêm cột `split` (`validation` hoặc 
 
 ## 5. Biểu đồ (`results/figures/`)
 
-Tất cả do `notebooks/01_data_exploration.ipynb` sinh ra, trừ ba tệp `baseline_*` của notebook 02.
+Các tệp `eda_*` do `notebooks/01_data_exploration.ipynb` sinh ra, các tệp `baseline_*` do `notebooks/02_baseline.ipynb`.
 
 | Tệp | Nội dung |
 |---|---|
@@ -282,6 +341,16 @@ Tất cả do `notebooks/01_data_exploration.ipynb` sinh ra, trừ ba tệp `bas
 | `eda_main_acf.png` | Tự tương quan theo độ trễ 1–192 giờ |
 | `eda_series_comparison.png` | Bốn chuỗi chuẩn hóa z-score trên cùng một tuần |
 | `eda_rolling_mean_all.png` | Trung bình trượt 30 ngày của bốn chuỗi |
+| `baseline_acf.png` | Tự tương quan dùng để chọn độ trễ cho Seasonal Naive |
 | `baseline_val_comparison.png` | So sánh MAE và RMSE của bốn baseline trên validation |
+| `baseline_val_mae.png` | MAE của bốn baseline trên validation |
+| `baseline_val_rmse.png` | RMSE của bốn baseline trên validation |
 | `baseline_test_timeseries.png` | Thực tế và dự báo trên một tuần đầu tập test |
+| `baseline_residuals_timeseries.png` | Sai số theo thời gian trên tập test |
+| `baseline_error_distribution.png` | Phân phối sai số |
 | `baseline_error_by_hour.png` | MAE theo giờ trong ngày |
+| `baseline_error_by_dayofweek.png` | MAE theo thứ trong tuần |
+
+> Ba hình `baseline_val_comparison`, `baseline_val_mae` và `baseline_val_rmse` trình bày cùng một thông tin ở ba dạng. Danh sách hình của notebook 02 còn đang được Nhiệm vụ 2 chỉnh lại, nên mục này cập nhật sau khi notebook 02 chốt.
+
+Tuần mẫu dùng ở `eda_main_week_and_weekday.png` và `eda_series_comparison.png` được chọn **bằng quy tắc**, không chọn tùy ý: tuần đủ 168 giờ, **nằm trong tập train**, không chứa ngày chuyển giờ, không chứa giờ bằng 0, và có trung bình gần trung bình toàn chuỗi nhất. Kết quả: `2012-11-12 → 2012-11-18` (288,3 kW so với toàn chuỗi 288,6 kW). Điều kiện "nằm trong tập train" là bắt buộc — khảo sát dữ liệu không được nhìn vào validation hay test, kể cả chỉ để vẽ minh họa.

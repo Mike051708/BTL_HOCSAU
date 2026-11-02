@@ -6,16 +6,22 @@ cột trong file).
 
 Quy trình 4 tầng, mọi ngưỡng đặt trong configs/config.yaml (mục `selection`):
 
-    Tầng A  370 -> ?   Chất lượng dữ liệu thô (thiếu, âm, bắt đầu muộn, 0 lẻ)
+    Tầng A  370 -> ?   Chất lượng dữ liệu thô: chuỗi phải đầy đủ từ đầu 2011
     Tầng B  ?   -> ?   Tính đặc trưng chuỗi theo giờ cho các chuỗi qua tầng A
     Tầng C  ?   -> N   Lọc theo đặc trưng (đoạn phẳng, cv, chu kỳ, dịch mức)
     Tầng D1 N   -> 1   Chọn CHUỖI CHÍNH trên toàn bộ shortlist (làm TRƯỚC)
-    Tầng D2 N   -> 4   Chọn chuỗi phụ trải đều theo mức tải
+    Tầng D2 N   -> k-1 Chọn chuỗi phụ trải đều theo mức tải
 
 Thứ tự D1 trước D2 là bắt buộc: phần lớn khách hàng trong bộ dữ liệu có chu kỳ
-ngày lặp gần như máy móc (ac_lag24 ~ 0,95), nên nếu chọn 5 chuỗi theo mức tải
+ngày lặp gần như máy móc (ac_lag24 ~ 0,95), nên nếu chọn các chuỗi theo mức tải
 trước thì hầu như chắc chắn không chuỗi nào trong đó còn dư địa cho mô hình học
 sâu.
+
+LƯU Ý về số 0 giữa chuỗi: tầng A KHÔNG lọc theo tiêu chí này. Số 0 nằm giữa
+chuỗi nghĩa là công tơ đã hoạt động và đo được 0, tức giờ đó khách hàng không
+dùng điện - một quan sát hợp lệ. Chuỗi có đoạn 0 kéo dài (công tơ chết) bị tầng
+C bắt bằng const_run_max_h và cv, nơi tiêu chí có lý do rõ ràng hơn. Cột
+zeros_after_start vẫn được tính và lưu lại để theo dõi, chỉ không dùng để loại.
 
 Chạy:
     python src/select_customers.py            # đọc data/raw, tạo cache theo giờ
@@ -26,7 +32,7 @@ Chạy:
     customer_features_hourly.csv   các chuỗi qua tầng A, đặc trưng tầng B
     customer_shortlist.csv         các chuỗi qua tầng C, đã xếp hạng
     customer_main_candidates.csv   các chuỗi đủ điều kiện làm chuỗi chính (tầng D1)
-    customer_selection.csv         5 chuỗi được chọn + vai trò (chính/phụ)
+    customer_selection.csv         các chuỗi được chọn + vai trò (chính/phụ)
 """
 import argparse
 import sys
@@ -87,6 +93,8 @@ def quality_report(raw: pd.DataFrame, cfg) -> pd.DataFrame:
     rep["pass_no_missing"] = rep["missing_count"] == 0
     rep["pass_no_negative"] = rep["negative_count"] == 0
     rep["pass_full_from_2011"] = rep["leading_zero_steps"] <= sel["max_leading_zero_steps"]
+    # Tiêu chí này được VÔ HIỆU HÓA có chủ ý: ngưỡng trong config đặt rất lớn vì
+    # số 0 giữa chuỗi là tiêu thụ thật bằng 0, không phải lỗi dữ liệu (xem docstring).
     rep["pass_no_inner_zero"] = rep["zeros_after_start"] <= sel["max_zeros_after_start"]
     rep["pass_positive_mean"] = rep["mean_15min"] > 0
 
@@ -200,7 +208,7 @@ def apply_filters(feat: pd.DataFrame, cfg) -> pd.DataFrame:
 
 
 # ==========================================================================
-# TẦNG D - CHỌN 5 CHUỖI ĐẠI DIỆN VÀ CHUỖI CHÍNH
+# TẦNG D - CHỌN CHUỖI CHÍNH VÀ CÁC CHUỖI ĐẠI DIỆN
 # ==========================================================================
 
 def pick_main(shortlist: pd.DataFrame, cfg):
@@ -277,7 +285,7 @@ def load_raw(cfg) -> pd.DataFrame:
     )
     raw.index.name = "timestamp"
     raw.columns = raw.columns.str.strip().str.strip('"')
-    return raw.apply(pd.to_numeric, errors="coerce").astype("float32").sort_index()
+    return raw.apply(pd.to_numeric, errors="coerce").astype("float64").sort_index()
 
 
 def main(use_cache=False):
@@ -308,6 +316,10 @@ def main(use_cache=False):
             print(f"    loại {n:>3} chuỗi vì: {reason}")
         if not passers:
             raise RuntimeError("Không chuỗi nào qua tầng A; xem lại ngưỡng trong config.")
+        # Theo dõi (không lọc): bao nhiêu chuỗi đạt vẫn còn số 0 giữa chuỗi
+        co_so_khong = int((quality.loc[passers, "zeros_after_start"] > 0).sum())
+        print(f"    ghi nhận: {co_so_khong}/{len(passers)} chuỗi đạt có số 0 giữa chuỗi"
+              f" (tiêu thụ thật bằng 0, giữ nguyên - không dùng để loại)")
 
         print("\n[Tầng B] Gộp theo giờ các chuỗi qua tầng A...")
         hourly = to_hourly(raw[passers], cfg)
@@ -368,7 +380,7 @@ def main(use_cache=False):
     cur_main = cfg["customers"]["main"]
     cur_all = cfg["customers"]["hourly_file_columns"]
     print("\n[Đối chiếu với configs/config.yaml]")
-    print(f"  Đang dùng: chính={cur_main}, 5 chuỗi={cur_all}")
+    print(f"  Đang dùng: chính={cur_main}, {len(cur_all)} chuỗi={cur_all}")
     if cur_main in eligible.index:
         rank = list(eligible.index).index(cur_main) + 1
         print(f"  {cur_main} đủ điều kiện làm chuỗi chính "
@@ -386,7 +398,8 @@ def main(use_cache=False):
         if c in filtered.index and not filtered.loc[c, "stage_c_pass"]:
             print(f"    {c}: loại vì {filtered.loc[c, 'stage_c_reason']}")
 
-    print(f"\nĐã lưu 4 bảng vào {tables}")
+    n_bang = 4 if use_cache else 5
+    print(f"\nĐã lưu {n_bang} bảng vào {tables}")
 
 
 if __name__ == "__main__":
