@@ -10,6 +10,7 @@ ipykernel==7.4.0
 nbformat==5.11.1
 nbconvert==7.17.2
 notebook==7.6.3
+joblib==1.6.0
 
 # --- Framework học sâu: NHÓM CẦN CHỐT RỒI BỎ DẤU # ---
 # Trước khi chốt, kiểm tra framework có hỗ trợ Python 3.14 trên máy nhóm hay không;

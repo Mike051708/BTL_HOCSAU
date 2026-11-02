@@ -102,40 +102,85 @@ def predict_baselines(series, target_timestamps):
     pandas.DataFrame
         Các cột: timestamp, y_true và bốn cột dự báo Baseline.
     """
+    # Kiểm tra chuỗi một lần duy nhất
     _validate_series(series)
 
-    timestamps = pd.DatetimeIndex(pd.to_datetime(target_timestamps))
+    timestamps = pd.DatetimeIndex(
+        pd.to_datetime(target_timestamps)
+    )
 
     if timestamps.has_duplicates:
-        raise ValueError("Danh sách timestamp mục tiêu có phần tử trùng.")
+        raise ValueError(
+            "Danh sách timestamp mục tiêu có phần tử trùng."
+        )
 
     if len(timestamps) == 0:
-        raise ValueError("Danh sách timestamp mục tiêu đang rỗng.")
+        raise ValueError(
+            "Danh sách timestamp mục tiêu đang rỗng."
+        )
 
     if not timestamps.is_monotonic_increasing:
-        raise ValueError("Timestamp mục tiêu phải được sắp xếp tăng dần.")
+        raise ValueError(
+            "Timestamp mục tiêu phải được sắp xếp tăng dần."
+        )
 
-    rows = [
-        predict_one(series, timestamp)
-        for timestamp in timestamps
+    # Lấy vị trí timestamp mục tiêu trong chuỗi đầy đủ
+    positions = series.index.get_indexer(timestamps)
+
+    if (positions < 0).any():
+        raise ValueError(
+            "Có timestamp mục tiêu không tồn tại trong series."
+        )
+
+    # Cần đủ 168 giờ lịch sử cho Seasonal Naive 168
+    if (positions < 168).any():
+        raise ValueError(
+            "Có timestamp không đủ 168 giờ lịch sử."
+        )
+
+    values = series.to_numpy(dtype=float)
+
+    # Dự báo trực tiếp bằng NumPy, không gọi predict_one lặp lại
+    result = pd.DataFrame({
+        "timestamp": timestamps,
+        "y_true": values[positions],
+        "y_last_value": values[positions - 1],
+        "y_ma3": (
+            values[positions - 1]
+            + values[positions - 2]
+            + values[positions - 3]
+        ) / 3,
+        "y_snaive24": values[positions - 24],
+        "y_snaive168": values[positions - 168],
+    })
+
+    return result[
+        ["timestamp", "y_true", *BASELINE_COLUMNS]
     ]
-
-    result = pd.DataFrame(rows)
-
-    # Bảo đảm thứ tự cột thống nhất để các thành viên khác sử dụng.
-    return result[["timestamp", "y_true", *BASELINE_COLUMNS]]
-
 
 def get_common_eval_timestamps(series, target_timestamps):
     """Trả về timestamp có đủ lịch sử cho cả bốn Baseline.
 
-    Hàm này chỉ lọc timestamp mục tiêu; không đưa lịch sử context
+    Chỉ lọc timestamp mục tiêu; không đưa lịch sử context
     vào tập nhãn dùng để tính metric.
     """
     _validate_series(series)
 
-    timestamps = pd.DatetimeIndex(pd.to_datetime(target_timestamps))
+    timestamps = pd.DatetimeIndex(
+        pd.to_datetime(target_timestamps)
+    )
+
+    if timestamps.has_duplicates:
+        raise ValueError(
+            "Danh sách timestamp mục tiêu có phần tử trùng."
+        )
+
+    if len(timestamps) == 0:
+        return timestamps
+
     positions = series.index.get_indexer(timestamps)
 
+    # Timestamp phải tồn tại trong series và có đủ 168 giờ lịch sử
     valid = (positions >= 168)
+
     return timestamps[valid]

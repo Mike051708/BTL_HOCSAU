@@ -132,21 +132,17 @@ def main():
     print(f"\nĐã lưu: {out_dir}/train.csv, validation.csv, test.csv")
     print(f"Đã lưu: {tables_dir / 'split_summary.csv'}")
     print("Lưu ý: scaler (nếu dùng) phải được fit CHỈ trên tập train.")
-    
+
+
 def get_lookback_context(
     full_df: pd.DataFrame, eval_df: pd.DataFrame, lookback_hours: int = 168
 ) -> pd.DataFrame:
-    """Tạo Lookback Buffer (ví dụ 168h) lấy từ quá khứ cho tập Validation/Test.
-
-    Giúp Seasonal Naive 168h không bị thiếu dữ liệu ở các mẫu đầu tập
-    val/test.
-    """
+    """Tạo Lookback Buffer (ví dụ 168h) lấy từ quá khứ cho tập Validation/Test."""
     start_idx = eval_df.index.min()
     loc = full_df.index.get_loc(start_idx)
     context_start_loc = max(0, loc - lookback_hours)
     context_df = full_df.iloc[context_start_loc : loc + len(eval_df)].copy()
     return context_df
-
 
 
 def fit_and_save_scaler(
@@ -155,21 +151,30 @@ def fit_and_save_scaler(
     models_dir: str = "models",
     scaler_cls=None,
 ):
-    """Fit scaler riêng cho từng chuỗi trên tập Train."""
+    """Fit scaler chỉ trên tập Train của một khách hàng."""
     from sklearn.preprocessing import StandardScaler
 
-    scaler = (scaler_cls or StandardScaler)()
+    scaler_cls = scaler_cls or StandardScaler
 
-    # Chỉ fit trên một cột của chuỗi cần dự đoán
+    if customer not in train_df.columns:
+        raise ValueError(f"Không tìm thấy cột khách hàng: {customer}")
+
+    os.makedirs(models_dir, exist_ok=True)
+    scaler = scaler_cls()
+
+    # Fit scaler riêng cho chuỗi khách hàng
     scaler.fit(train_df[[customer]].values)
 
-    # Lưu scaler riêng cho từng khách hàng
-    path = Path(models_dir) / f"scaler_{customer}.pkl"
-    path.parent.mkdir(parents=True, exist_ok=True)
+    # Lưu scaler riêng theo tên khách hàng
+    scaler_path = os.path.join(
+        models_dir,
+        f"scaler_{customer}.pkl"
+    )
 
-    joblib.dump(scaler, path)
+    joblib.dump(scaler, scaler_path)
+    print(f"Đã lưu scaler: {scaler_path}")
+
     return scaler
-
 
 
 def transform_data(df: pd.DataFrame, scaler) -> pd.DataFrame:
@@ -187,34 +192,43 @@ def inverse_transform_array(
     return scaler.inverse_transform(scaled_array).flatten()
 
 
-
 def create_sliding_window(
     data_array: np.ndarray,
     timestamps: pd.DatetimeIndex,
     window_size: int = 24,
-    lookback_buffer=None,
+    lookback_buffer: int = None,
     n_context: int = 168,
 ):
     """Tạo cặp đầu vào X, y cho MLP/LSTM và giữ đúng timestamp nhãn mục tiêu."""
+
+    if window_size <= 0:
+        raise ValueError("window_size phải lớn hơn 0.")
+
+    if window_size > n_context:
+        raise ValueError(
+            "n_context phải >= window_size (dùng n_context=168)."
+        )
+
+    # Tự tính lookback buffer
+    if lookback_buffer is None:
+        lookback_buffer = n_context - window_size
+
+    if lookback_buffer < 0:
+        raise ValueError("lookback_buffer không được âm.")
+
     X, y, target_timestamps = [], [], []
 
     for i in range(window_size, len(data_array)):
-        X.append(data_array[i - window_size : i])
+        X.append(data_array[i - window_size:i])
         y.append(data_array[i])
         target_timestamps.append(timestamps[i])
 
     X = np.array(X)
     y = np.array(y).flatten()
-    target_timestamps = pd.DatetimeIndex(target_timestamps)
 
-    # Tự tính buffer để giữ đúng các mốc thời gian baseline
-    if lookback_buffer is None:
-        lookback_buffer = n_context - window_size
-
-    if lookback_buffer < 0:
-        raise ValueError(
-            "n_context phải >= window_size (dùng n_context=168)."
-        )
+    target_timestamps = pd.DatetimeIndex(
+        target_timestamps
+    )
 
     if lookback_buffer > 0:
         X = X[lookback_buffer:]
