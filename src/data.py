@@ -192,50 +192,40 @@ def inverse_transform_array(
     return scaler.inverse_transform(scaled_array).flatten()
 
 
-def create_sliding_window(
-    data_array: np.ndarray,
-    timestamps: pd.DatetimeIndex,
+def create_sliding_window_for_eval(
+    full_data_array: np.ndarray,
+    full_timestamps: pd.DatetimeIndex,
+    eval_start_timestamp: pd.Timestamp,
     window_size: int = 24,
-    lookback_buffer: int = None,
-    n_context: int = 168,
 ):
-    """Tạo cặp đầu vào X, y cho MLP/LSTM và giữ đúng timestamp nhãn mục tiêu."""
-
+    """Tạo cửa sổ trượt từ chuỗi dữ liệu (đã gồm context), 
+    nhưng chỉ giữ lại các mẫu dự báo có timestamp >= eval_start_timestamp.
+    """
     if window_size <= 0:
         raise ValueError("window_size phải lớn hơn 0.")
 
-    if window_size > n_context:
-        raise ValueError(
-            "n_context phải >= window_size (dùng n_context=168)."
-        )
-
-    # Tự tính lookback buffer
-    if lookback_buffer is None:
-        lookback_buffer = n_context - window_size
-
-    if lookback_buffer < 0:
-        raise ValueError("lookback_buffer không được âm.")
-
     X, y, target_timestamps = [], [], []
 
-    for i in range(window_size, len(data_array)):
-        X.append(data_array[i - window_size:i])
-        y.append(data_array[i])
-        target_timestamps.append(timestamps[i])
+    # Quét toàn bộ mảng (bao gồm cả phần context ở đầu)
+    for i in range(window_size, len(full_data_array)):
+        X.append(full_data_array[i - window_size : i])
+        y.append(full_data_array[i])
+        target_timestamps.append(full_timestamps[i])
 
     X = np.array(X)
-    y = np.array(y).flatten()
+    y = np.array(y).flatten() if np.array(y).ndim > 1 else np.array(y)
+    target_timestamps = pd.DatetimeIndex(target_timestamps)
 
-    target_timestamps = pd.DatetimeIndex(
-        target_timestamps
-    )
+    # LỌC QUAN TRỌNG: Chỉ giữ lại các điểm dữ liệu thuộc đúng tập Validation/Test cần đánh giá
+    mask = target_timestamps >= eval_start_timestamp
+    
+    if not mask.any():
+        raise ValueError(
+            f"Không tìm thấy mốc thời gian đánh giá nào từ {eval_start_timestamp}. "
+            "Hãy kiểm tra lại dữ liệu context và thời điểm bắt đầu."
+        )
 
-    if lookback_buffer > 0:
-        X = X[lookback_buffer:]
-        y = y[lookback_buffer:]
-        target_timestamps = target_timestamps[lookback_buffer:]
-
-    return X, y, target_timestamps
+    return X[mask], y[mask], target_timestamps[mask]
 
 
 if __name__ == "__main__":
