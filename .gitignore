@@ -20,3 +20,16 @@ Thumbs.db
 .vscode/
 .idea/
 data/processed/candidates_hourly.csv
+
+# Bản sao lưu tạm trong quá trình thí nghiệm: giữ trên máy, không đưa lên Git.
+# results/luu_tam/     - bản MLP ở các cấu hình đã bị thay thế
+# results/analysis_cal0/ - bản phân tích "trước khi cải tiến", đã bị thay thế
+# Mọi chỉ số của các cấu hình này vẫn còn trong results/experiments.csv.
+results/luu_tam/
+results/analysis_cal0/
+
+# Báo cáo Word: nộp và chia sẻ riêng, không đưa lên Git (tệp nhị phân,
+# Git không diff được và mỗi lần sửa lại thêm ~1 MB vào lịch sử).
+*.docx
+*.doc
+~$*.docx
