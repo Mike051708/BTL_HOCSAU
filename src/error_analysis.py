@@ -28,6 +28,7 @@ Không cần GPU. Chạy khoảng 1-2 phút.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -275,6 +276,45 @@ def hinh_01(tong_hop, cac_chuoi):
 # HÌNH 02 - Ablation đặc trưng lịch
 # ======================================================================
 
+# Bốn cột phân biệt một cấu hình. KHÔNG dùng `layers`: build_model() không
+# truyền tham số đó cho MLP (thân mạng cố định 2 lớp ẩn), nên giá trị `layers`
+# trong best_config.json của MLP là vô nghĩa và lọc theo nó sẽ loại oan.
+COT_CAU_HINH = ["lookback", "hidden", "dropout", "lr"]
+
+
+def chi_giu_cau_hinh_da_do(e):
+    """Mỗi mô hình chỉ giữ các lần chạy ở cấu hình đã dò được.
+
+    experiments.csv là sổ cái chỉ-thêm, nên một mô hình có thể có nhiều cấu
+    hình ở stage final (MLP có cả bản đặt tay hidden=64 và bản dò ra
+    hidden=128). Không lọc thì groupby theo model + calendar sẽ gộp chúng lại
+    và ra con số không ứng với cấu hình nào, kèm n = 10 thay vì 5 seed.
+
+    Mô hình không có best_config.json, hoặc không dòng nào khớp, thì giữ
+    nguyên mọi dòng của nó và báo cảnh báo - thà vẽ sai còn hơn vẽ rỗng.
+    """
+    giu = []
+    for mh in e.model.unique():
+        con = e[e.model == mh]
+        p = ROOT_DIR / "results" / "dl" / mh.lower() / "tables" / "best_config.json"
+        if not p.exists():
+            print(f"  [Cảnh báo] Thiếu {p.relative_to(ROOT_DIR)}"
+                  f" -> giữ mọi cấu hình của {mh}.")
+            giu.append(con)
+            continue
+        cfg = json.loads(p.read_text(encoding="utf-8"))
+        khop = np.ones(len(con), dtype=bool)
+        for cot in COT_CAU_HINH:
+            khop &= np.isclose(con[cot].astype(float), float(cfg[cot]))
+        if not khop.any():
+            print(f"  [Cảnh báo] Không lần chạy nào của {mh} khớp"
+                  f" best_config.json -> giữ mọi cấu hình.")
+            giu.append(con)
+            continue
+        giu.append(con[khop])
+    return pd.concat(giu, ignore_index=True)
+
+
 def hinh_02(cac_chuoi):
     p = ROOT_DIR / "results" / "experiments.csv"
     if not p.exists():
@@ -283,6 +323,7 @@ def hinh_02(cac_chuoi):
     e = e[e.stage == "final"]
     if e.empty:
         return None
+    e = chi_giu_cau_hinh_da_do(e)
     e["cau_hinh"] = e.model + np.where(e.calendar == 1, " + lịch", " (không lịch)")
 
     g = (e.groupby(["customer", "cau_hinh"])
@@ -470,14 +511,21 @@ def hinh_07(cac_chuoi, mo_hinh_ve, seed=None):
             s = d[d.model == m]
             if s.empty:
                 continue
-            le = s[s.is_holiday]["abs_error"]
-            thuong = s[~s.is_holiday]["abs_error"]
+            s_le, s_thuong = s[s.is_holiday], s[~s.is_holiday]
+            le, thuong = s_le["abs_error"], s_thuong["abs_error"]
             if len(le) == 0:
                 continue
+            # N đếm theo SỐ GIỜ (timestamp khác nhau), không theo số dòng: mô
+            # hình học sâu gộp 5 seed nên mỗi giờ xuất hiện 5 lần, còn baseline
+            # chỉ chạy một lần. Dùng len() thì hai loại lệch nhau 5 lần và
+            # không so được trong cùng một bảng. MAE không bị ảnh hưởng vì mọi
+            # seed có cùng số mẫu.
             hang.append({
-                "chuoi": c, "mo_hinh": m,
-                "MAE_ngay_thuong": thuong.mean(), "N_thuong": len(thuong),
-                "MAE_ngay_le": le.mean(), "N_le": len(le),
+                "chuoi": c, "mo_hinh": m, "so_seed": s["seed"].nunique(),
+                "MAE_ngay_thuong": thuong.mean(),
+                "N_gio_thuong": s_thuong["timestamp"].nunique(),
+                "MAE_ngay_le": le.mean(),
+                "N_gio_le": s_le["timestamp"].nunique(),
                 "ty_le_tang_%": 100 * (le.mean() / thuong.mean() - 1),
             })
     if not hang:
@@ -608,7 +656,8 @@ def main():
         for _, r in le[le.mo_hinh == mo_hinh_chinh].iterrows():
             print(f"  {r['chuoi']}: ngày thường {r['MAE_ngay_thuong']:.2f} -> "
                   f"ngày lễ {r['MAE_ngay_le']:.2f} kW "
-                  f"({r['ty_le_tang_%']:+.1f}%, {int(r['N_le'])} giờ lễ)")
+                  f"({r['ty_le_tang_%']:+.1f}%, {int(r['N_gio_le'])} giờ lễ, "
+                  f"{int(r['so_seed'])} seed)")
 
     print("\n" + "=" * 70)
     print("XONG.")

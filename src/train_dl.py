@@ -257,8 +257,12 @@ def stage_tune(args, splits, cfg):
     print("Chon theo VALIDATION MAE. Khong nhin test.")
     print("=" * 70)
 
-    # Thu tu uu tien: lookback quan trong nhat voi LSTM
-    # (LSTM phai cuon qua lookback buoc -> chuoi dai lam mo tin hieu buoc dau)
+    # Thu tu uu tien: lookback do dau tien vi no doi SO CHIEU dau vao, nen moi
+    # tham so khac chi co nghia khi lookback da chot.
+    # Luu y ket qua da do duoc: lookback la tham so manh nhat voi MLP
+    # (bien do 27,08% tren validation MAE, don dieu theo ca 3 gia tri), nhung
+    # voi LSTM chi 2,86% va KHONG don dieu - tuc nam trong nhieu giua cac seed.
+    # Dung dua ra ket luan ve anh huong cua lookback len LSTM tu luoi nay.
     grid = [
         ("lookback", [24, 48, 168]),
         ("hidden",   [32, 64, 128]),

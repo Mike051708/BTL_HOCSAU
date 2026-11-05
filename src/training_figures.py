@@ -35,9 +35,11 @@ import pandas as pd
 
 try:
     from src.config import ROOT_DIR, load_config
+    from src.error_analysis import chi_giu_cau_hinh_da_do
 except ImportError:
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from src.config import ROOT_DIR, load_config
+    from src.error_analysis import chi_giu_cau_hinh_da_do
 
 DPI = 130
 plt.rcParams.update({
@@ -237,6 +239,10 @@ def hinh_04(model, cac_chuoi):
     e = e[(e.model == model) & (e.stage == "final")]
     if e.empty:
         return None
+    # sổ cái chỉ-thêm có thể chứa nhiều cấu hình của cùng mô hình (bản đặt tay
+    # và bản dò ra). Không lọc thì mọi con số dưới đây là trung bình của hai
+    # cấu hình khác nhau, và so_seed thành 10 thay vì 5.
+    e = chi_giu_cau_hinh_da_do(e)
     # nếu có cả hai cấu hình có/không đặc trưng lịch thì lấy cấu hình mới nhất
     if "calendar" in e.columns and e.calendar.nunique() > 1:
         e = e[e.calendar == e.calendar.iloc[-1]]
@@ -301,6 +307,7 @@ def hinh_05(model, cac_chuoi):
     if moc.empty or cuoi.empty:
         print("  (bỏ qua hình 05: chưa có cả stage baseline lẫn final)")
         return None
+    cuoi = chi_giu_cau_hinh_da_do(cuoi)
     if "calendar" in cuoi.columns and cuoi.calendar.nunique() > 1:
         cuoi = cuoi[cuoi.calendar == cuoi.calendar.iloc[-1]]
 
