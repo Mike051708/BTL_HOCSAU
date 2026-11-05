@@ -4,7 +4,7 @@ venv/
 __pycache__/
 *.py[cod]
 .ipynb_checkpoints/
-
+.pytest_cache/
 # Dữ liệu gốc dung lượng lớn (~700 MB): không đưa lên Git.
 # Tải bằng: python src/download_data.py (xem README.md)
 data/raw/

@@ -326,6 +326,94 @@ Khác `top10_worst_errors.csv` ở chỗ giữ **toàn bộ** 3.672 mốc, khôn
 
 > **Lưu ý:** tệp này hiện trên đĩa có cấu trúc khác với cấu trúc mà notebook 02 sinh ra. Chạy lại notebook để hai bên khớp nhau.
 
+## N. Phần học sâu (`results/dl/`, `results/analysis_train/`, `models/dl/`)
+
+Sinh bởi `src/train_dl.py`, `src/training_figures.py`, `src/error_analysis.py`.
+Đơn vị của mọi cột sai số là **kW** (trừ các cột ghi rõ `_scaled` hoặc `_%`).
+
+### `results/experiments.csv` — nhật ký mọi lần chạy
+
+Mỗi dòng là một lần huấn luyện (một mô hình × một chuỗi × một seed × một cấu hình).
+Ghi nối thêm sau mỗi lần chạy, không ghi đè.
+
+| Cột | Kiểu | Mô tả |
+|---|---|---|
+| `exp_id` | chuỗi | Mã định danh duy nhất, ghép từ mô hình + chuỗi + tham số + seed |
+| `stage` | chuỗi | `baseline` (chạy mốc), `tune` (dò tham số), `final` (chính thức), `single` |
+| `model` | chuỗi | `LSTM`, `MLP` hoặc `CNNLSTM` |
+| `customer` | chuỗi | Mã chuỗi khách hàng |
+| `lookback` | số nguyên | Số giờ lịch sử làm đầu vào |
+| `hidden` | số nguyên | Kích thước hidden state (LSTM) hoặc lớp ẩn (MLP) |
+| `layers` | số nguyên | Số lớp |
+| `dropout` | số thực | Tỉ lệ dropout |
+| `lr` | số thực | Learning rate ban đầu |
+| `batch_size` | số nguyên | Kích thước lô |
+| `calendar` | 0/1 | Có dùng đặc trưng lịch hay không |
+| `holiday` | 0/1 | Trong đặc trưng lịch có cột `is_holiday` hay không |
+| `seed` | số nguyên | Seed ngẫu nhiên |
+| `n_params` | số nguyên | Số tham số huấn luyện được |
+| `best_epoch` | số nguyên | Epoch có validation loss thấp nhất; trọng số lấy tại đây |
+| `epochs_run` | số nguyên | Tổng số epoch đã chạy trước khi early stopping dừng |
+| `val_MAE`, `val_RMSE`, `val_MASE` | số thực | Chỉ số trên tập validation, **thang gốc** (đã `inverse_transform`) |
+| `test_MAE`, `test_RMSE`, `test_MASE` | số thực | Chỉ số trên tập test, thang gốc |
+
+Lưu ý: `epochs_run − best_epoch` luôn bằng `patience` (mặc định 30) khi early
+stopping kích hoạt. Dùng để kiểm tra mô hình đã được chạy đủ hay chưa.
+
+### `results/dl/<model>/tables/history_<chuoi>_s<seed>.csv` — learning curve
+
+| Cột | Kiểu | Mô tả |
+|---|---|---|
+| `epoch` | số nguyên | Số thứ tự epoch, bắt đầu từ 1 |
+| `train_mse_scaled` | số thực | **Train loss**: MSE trung bình trên tập train, **thang đã chuẩn hoá** |
+| `validation_mse_scaled` | số thực | **Validation loss**: MSE trên toàn tập validation, thang đã chuẩn hoá |
+| `lr` | số thực | Learning rate tại epoch đó (giảm dần do `ReduceLROnPlateau`) |
+
+Loss tính trên thang chuẩn hoá nên **không so sánh trực tiếp được giữa các chuỗi**.
+Mọi chỉ số báo cáo (MAE/RMSE/MASE) đều được tính lại trên thang gốc.
+
+### `results/dl/<model>/predictions/<tap>_<chuoi>_s<seed>.csv` — dự báo từng điểm
+
+`<tap>` là `validation` hoặc `test`. Mỗi tệp có đúng 3.672 dòng.
+
+| Cột | Kiểu | Đơn vị | Mô tả |
+|---|---|---|---|
+| `timestamp` | datetime | — | Mốc kết thúc của giờ cần dự báo |
+| `customer` | chuỗi | — | Mã chuỗi |
+| `model` | chuỗi | — | Tên mô hình |
+| `seed` | số nguyên | — | Seed của lần chạy |
+| `y_true` | số thực | kW | Giá trị thực tế |
+| `y_pred` | số thực | kW | Giá trị dự báo, đã `inverse_transform` về thang gốc |
+| `error` | số thực | kW | `y_true − y_pred`. Dương = mô hình dự báo THẤP hơn thực tế |
+
+### `results/dl/<model>/tables/final_summary.csv`
+
+Tổng hợp của lần chạy `--stage final` gần nhất: trung bình và độ lệch chuẩn
+qua các seed cho từng chuỗi (`*_mean`, `*_std`), kèm `best_epoch_mean` và `n_seeds`.
+
+### `results/dl/<model>/tables/tuning_log.csv`
+
+Mỗi dòng là một cấu hình đã thử trong giai đoạn dò tham số (chỉ trên chuỗi chính).
+Cột: `lookback`, `hidden`, `lr`, `layers`, `dropout`, `val_MAE`, `val_MASE`, `best_epoch`.
+Cấu hình được chọn ghi ở `best_config.json` cùng thư mục.
+
+### `results/analysis_train/<model>/tables/`
+
+| Tệp | Nội dung |
+|---|---|
+| `muc_anh_huong_tham_so.csv` | Mỗi tham số ảnh hưởng bao nhiêu % tới validation MAE, **so sánh có kiểm soát** (chỉ so các cấu hình khác nhau đúng ở tham số đó) |
+| `hoi_tu_va_on_dinh.csv` | `best_epoch`, `epochs_run`, test MAE ± std và `std_tren_TB_%` cho từng chuỗi |
+| `truoc_sau_do_tham_so.csv` | MAE lần chạy mốc so với sau khi dò tham số |
+
+### `models/dl/<model>_<chuoi>_s<seed>.pt` — checkpoint
+
+**Không nằm trong Git** (`.gitignore` chặn `models/*`); xem link Drive ở README mục 6.
+Mỗi tệp là một `dict` PyTorch chứa `model_state_dict`, toàn bộ siêu tham số
+(`lookback`, `hidden`, `layers`, `dropout`, `lr`, `calendar`, `holiday`),
+`best_epoch`, `n_params`, `seed`, cùng `scaler_mean` và `scaler_scale` để
+`inverse_transform` đúng về thang gốc khi nạp lại.
+```
+
 ---
 
 ## 5. Biểu đồ (`results/figures/`)

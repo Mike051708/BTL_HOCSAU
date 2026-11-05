@@ -127,6 +127,38 @@ python -m pytest tests -q            # kiểm tra baseline và metric
 jupyter notebook notebooks/01_data_exploration.ipynb
 jupyter notebook notebooks/02_baseline.ipynb
 ```
+### Phần học sâu (LSTM / MLP)
+
+Huấn luyện chạy trên **Google Colab, GPU Tesla T4** (Python 3.12, PyTorch 2.11 + CUDA 13).
+Máy cá nhân không có GPU vẫn chạy được nhưng chậm hơn khoảng 8-10 lần.
+
+```powershell
+python src/train_dl.py --stage check       # kiểm tra GPU, thư viện và dữ liệu
+python src/train_dl.py --stage baseline    # chạy mốc: 4 chuỗi, 1 seed, cấu hình mặc định
+python src/train_dl.py --stage tune        # dò 12 cấu hình trên chuỗi chính MT_162
+python src/train_dl.py --stage final --lookback 24 --hidden 128 --layers 2 --n-seeds 5
+python src/train_dl.py --stage final --model MLP --lookback 168 --hidden 64 --dropout 0.1 --n-seeds 5
+```
+
+Thêm `--calendar` để bật đặc trưng lịch (giờ, thứ, cuối tuần, ngày lễ Bồ Đào Nha);
+thêm `--no-holiday` để tắt riêng cột ngày lễ. Chạy bốn tổ hợp mô hình × có/không
+đặc trưng lịch sẽ cho ma trận ablation 2×2.
+
+Mọi lần chạy được ghi nối thêm vào `results/experiments.csv`.
+
+### Biểu đồ và phân tích lỗi (không cần GPU)
+
+```powershell
+python src/training_figures.py             # learning curve, dò tham số, hội tụ - LSTM
+python src/training_figures.py --model MLP # tương tự cho MLP
+python src/error_analysis.py               # so sánh mô hình và phân tích lỗi
+```
+
+Kết quả vào `results/analysis_train/<model>/` và `results/analysis/`.
+Hai script này chỉ cần `pandas`, `numpy`, `matplotlib`, `pyyaml`, `holidays` - **không cần PyTorch**.
+```
+---
+
 
 `select_customers.py` đọc file gốc 700 MB nên chạy chậm; lần sau chỉ cần đổi ngưỡng rồi chạy
 `python src/select_customers.py --cached` (dùng lại `data/processed/candidates_hourly.csv`, vài giây).

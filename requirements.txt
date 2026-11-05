@@ -12,8 +12,16 @@ nbconvert==7.17.2
 notebook==7.6.3
 joblib==1.6.0
 
-# --- Framework học sâu: NHÓM CẦN CHỐT RỒI BỎ DẤU # ---
-# Trước khi chốt, kiểm tra framework có hỗ trợ Python 3.14 trên máy nhóm hay không;
-# nếu không, dùng Python thấp hơn (ví dụ 3.11/3.12) và tạo lại .venv.
-# tensorflow==<phiên bản>
-# torch==<phiên bản>
+# --- Hoc sau: nhom da chot PyTorch ---
+# Phan huan luyen chay tren Google Colab (Python 3.12, GPU Tesla T4):
+#     torch 2.11.0+cu130
+# Cai tren may ca nhan co GPU NVIDIA:
+#     pip install torch --index-url https://download.pytorch.org/whl/cu124
+# Luu y: PyTorch chua ho tro Python 3.14. Neu .venv dang dung 3.14 thi tao lai
+# bang Python 3.11 hoac 3.12.
+# Hai script ve bieu do (training_figures.py, error_analysis.py) KHONG can torch.
+torch==2.11.0
+
+# --- Ngay le Bo Dao Nha, dung cho dac trung is_holiday ---
+holidays==0.107
+```

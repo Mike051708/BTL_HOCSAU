@@ -1,0 +1,6 @@
+﻿tham_so,so_gia_tri_thu,gia_tri_tot_nhat,val_MAE_tot_nhat,val_MAE_te_nhat,muc_anh_huong_%
+layers,2,2.0,22.0915,24.2851,9.9297
+hidden,3,128.0,22.0915,23.747,7.494
+lr,2,0.001,22.0915,23.2002,5.0188
+lookback,3,24.0,22.9274,23.5836,2.862
+dropout,2,0.2,22.0915,22.2681,0.7997
