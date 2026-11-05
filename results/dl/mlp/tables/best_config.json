@@ -1,0 +1,12 @@
+{
+  "model": "MLP",
+  "lookback": 168,
+  "hidden": 128,
+  "layers": 1,
+  "dropout": 0.2,
+  "lr": 0.001,
+  "calendar": false,
+  "holiday": true,
+  "tuned_on": "MT_162",
+  "n_runs": 8
+}

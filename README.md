@@ -99,16 +99,33 @@ BTL_DuBaoDienNang/
 │   ├── data.py                # đọc dữ liệu giờ, chia train/validation/test, cửa sổ trượt
 │   ├── dst_check.py           # liệt kê giờ bất thường ngày chuyển giờ
 │   ├── baseline.py            # Last Value, Moving Average, Seasonal Naive 24/168
-│   └── metrics.py             # MAE, RMSE, MASE, gom nhóm sai số theo giờ/thứ/tháng
-├── notebooks/01_data_exploration.ipynb
-├── docs/data_dictionary.md    # mô tả cột của mọi tệp dữ liệu và bảng kết quả
+│   ├── metrics.py             # MAE, RMSE, MASE, gom nhóm sai số theo giờ/thứ/tháng
+│   ├── models_dl.py           # kiến trúc LSTM, MLP, CNN-LSTM (cùng chữ ký forward)
+│   ├── dl_utils.py            # seed, thiết bị, cửa sổ, đặc trưng lịch, vòng huấn luyện
+│   ├── train_dl.py            # CLI: check / baseline / tune / final / single
+│   ├── training_figures.py    # learning curve, mức ảnh hưởng tham số, hội tụ
+│   └── error_analysis.py      # 23 hình + 19 bảng phân tích lỗi cho báo cáo
+├── tests/                     # test_baseline.py, test_dl_utils.py (pytest)
+├── notebooks/                 # 01_data_exploration, 02_baseline, 03_mlp_baseline_4_series
+├── docs/
+│   ├── data_dictionary.md     # mô tả cột của mọi tệp dữ liệu và bảng kết quả
+│   └── *.docx                 # báo cáo Word (KHÔNG đưa lên Git, nộp/chia sẻ riêng)
 ├── kiem_tra_do_nhay.py        # kiểm tra độ nhạy của ngưỡng chọn chuỗi
-├── models/                    # mô hình đã lưu (lớn thì để Drive, ghi link ở mục 6)
-├── results/figures/, results/tables/
-├── demo/
+├── models/                    # scaler_<chuỗi>.pkl (lên Git) và dl/*.pt (không lên Git)
+├── results/
+│   ├── experiments.csv        # SỔ CÁI: một dòng một lần chạy, chỉ thêm không ghi đè
+│   ├── <chuỗi>/               # baseline của từng chuỗi
+│   ├── dl/<model>/            # tables, predictions, figures của mô hình học sâu
+│   ├── analysis/              # phân tích lỗi (error_analysis.py)
+│   ├── analysis_train/<model>/# phân tích quá trình huấn luyện (training_figures.py)
+│   └── figures/, tables/      # EDA và baseline giai đoạn đầu
 ├── requirements.txt
 └── README.md
 ```
+
+Phân biệt hai thư mục dễ lẫn: `results/analysis/` trả lời **mô hình sai ở đâu, khi nào**
+(theo giờ, theo thứ, ngày lễ, top-10 lỗi); `results/analysis_train/` trả lời **mô hình học
+thế nào** (learning curve, hội tụ, mức ảnh hưởng tham số).
 
 ## 4. Cài đặt và chạy lại từ đầu (Windows PowerShell)
 
@@ -129,16 +146,34 @@ jupyter notebook notebooks/02_baseline.ipynb
 ```
 ### Phần học sâu (LSTM / MLP)
 
-Huấn luyện chạy trên **Google Colab, GPU Tesla T4** (Python 3.12, PyTorch 2.11 + CUDA 13).
+LSTM huấn luyện trên **Google Colab, GPU Tesla T4** (Python 3.12, PyTorch 2.11 + CUDA 13).
 Máy cá nhân không có GPU vẫn chạy được nhưng chậm hơn khoảng 8-10 lần.
+Riêng **MLP đủ nhẹ để chạy trên CPU**: khoảng 77 giây một lần chạy trên 12 lõi
+(PyTorch 2.15 bản CPU), nên cả giai đoạn `tune` (~10 phút) và `final` (~40 phút)
+không cần GPU.
 
 ```powershell
 python src/train_dl.py --stage check       # kiểm tra GPU, thư viện và dữ liệu
 python src/train_dl.py --stage baseline    # chạy mốc: 4 chuỗi, 1 seed, cấu hình mặc định
-python src/train_dl.py --stage tune        # dò 12 cấu hình trên chuỗi chính MT_162
+
+# Dò tham số: lưới 12 điểm theo tọa độ, sinh ra 8 lần huấn luyện khác nhau
+# (giá trị tốt nhất hiện tại được giữ lại nên các điểm trùng lấy từ cache)
+python src/train_dl.py --stage tune
+python src/train_dl.py --stage tune --model MLP --max-epochs 120 --patience 20
+
+# Chạy chính thức với cấu hình đã dò (xem results/dl/<model>/tables/best_config.json)
 python src/train_dl.py --stage final --lookback 24 --hidden 128 --layers 2 --n-seeds 5
-python src/train_dl.py --stage final --model MLP --lookback 168 --hidden 64 --dropout 0.1 --n-seeds 5
+python src/train_dl.py --stage final --model MLP --lookback 168 --hidden 128 --dropout 0.2 --lr 0.001 --max-epochs 120 --patience 20 --n-seeds 5
 ```
+
+> **Cảnh báo:** tên tệp kết quả chỉ gồm `{chuỗi}_s{seed}`, không mang dấu hiệu giai đoạn.
+> Vì vậy `--stage baseline` và `--stage single` **ghi đè** tệp dự báo, history và biểu đồ
+> của `--stage final` ở cùng seed. Sao lưu `results/dl/<model>/` trước khi chạy hai giai
+> đoạn đó nếu đang giữ kết quả chính thức.
+
+> **Lưu ý:** `--layers` không có tác dụng với MLP - `build_model()` không truyền tham số
+> này cho `MLPForecast`, vốn có thân mạng cố định hai lớp ẩn. Giá trị `layers` trong
+> `best_config.json` của MLP vì thế không mang ý nghĩa.
 
 Thêm `--calendar` để bật đặc trưng lịch (giờ, thứ, cuối tuần, ngày lễ Bồ Đào Nha);
 thêm `--no-holiday` để tắt riêng cột ngày lễ. Chạy bốn tổ hợp mô hình × có/không
@@ -156,6 +191,19 @@ python src/error_analysis.py               # so sánh mô hình và phân tích 
 
 Kết quả vào `results/analysis_train/<model>/` và `results/analysis/`.
 Hai script này chỉ cần `pandas`, `numpy`, `matplotlib`, `pyyaml`, `holidays` - **không cần PyTorch**.
+
+Thiếu gói `holidays` thì cột `is_holiday` bằng 0 và phần so sánh ngày lễ bị bỏ qua (có cảnh báo).
+Trên Windows cần `$env:PYTHONIOENCODING = "utf-8"` trước khi chạy, nếu không `error_analysis.py`
+dừng với `UnicodeEncodeError` vì console mặc định dùng `cp1252`.
+
+> **Cảnh báo:** `doc_du_bao_dl()` quét **mọi** thư mục con của `results/dl/` và đánh khóa theo
+> cột `model`, nên thư mục nào xếp sau theo thứ tự chữ cái sẽ thắng. Không đặt bản sao lưu
+> bên trong `results/dl/` (ví dụ `results/dl/mlp_backup/`) - mọi hình và bảng MLP sẽ lặng lẽ
+> lấy số từ bản sao thay vì từ `results/dl/mlp/`. Để sao lưu ở ngoài, như `results/luu_tam/`.
+
+Hai script đọc cấu hình đã dò từ `results/dl/<model>/tables/best_config.json` và chỉ giữ
+những lần chạy khớp cấu hình đó. Nhờ vậy `results/experiments.csv` chứa nhiều cấu hình của
+cùng một mô hình mà bảng tổng hợp vẫn không trộn chúng lại.
 ```
 ---
 
@@ -177,11 +225,49 @@ Nhóm cần chốt framework học sâu (TensorFlow hoặc PyTorch) và ghi phi�
 
 ## 6. Kết quả
 
-_Chưa có. Cập nhật sau khi chạy baseline và mô hình học sâu (bảng MAE/RMSE trên validation và test, learning curve, phân tích lỗi, link mô hình)._
+Mô hình học sâu báo cáo trung bình trên 5 seed (42-46); baseline tiền định nên chỉ chạy một lần.
+Cấu hình đã dò: **LSTM** `lookback=24, hidden=128, layers=2, dropout=0.2` - **MLP** `lookback=168, hidden=128, dropout=0.2`.
+
+**test MAE (kW)**
+
+| Mô hình | MT_234 | MT_217 | MT_162 (chính) | MT_314 |
+|---|---|---|---|---|
+| **MLP** | **3,614** | **8,120** | **20,638** | **35,442** |
+| LSTM | 4,649 | 9,265 | 26,632 | 41,067 |
+| Seasonal Naive 24h | 6,402 | 13,271 | 96,487 | 63,266 |
+| Seasonal Naive 168h | 7,006 | 17,363 | 34,226 | 81,320 |
+| Last Value | 8,178 | 19,939 | 43,554 | 91,852 |
+| Moving Average 3h | 12,834 | 35,108 | 58,217 | 150,938 |
+
+**test MASE** (chuẩn hóa theo dự báo naive một bước trên train; < 1 là tốt hơn naive)
+
+| Mô hình | MT_234 | MT_217 | MT_162 (chính) | MT_314 |
+|---|---|---|---|---|
+| **MLP** | **0,4122** | **0,4055** | **0,4372** | **0,4446** |
+| LSTM | 0,5303 | 0,4626 | 0,5642 | 0,5152 |
+| Seasonal Naive 24h | 0,7303 | 0,6627 | **2,0440** | 0,7937 |
+| Seasonal Naive 168h | 0,7993 | 0,8670 | 0,7250 | 1,0202 |
+
+Bảng đầy đủ kèm RMSE và sMAPE: `results/analysis/tables/bang_tong_hop.csv`.
+
+**Nhận xét chính**
+
+- Cả hai mô hình học sâu vượt mọi baseline trên cả bốn chuỗi.
+- **MLP tốt hơn LSTM trên cả bốn chuỗi**, chênh lớn nhất ở chuỗi chính (20,64 so với 26,63 kW). Nguyên nhân **không** đơn thuần là độ dài cửa sổ: khi cấp cho LSTM đúng cửa sổ 168 giờ ở cùng điều kiện (`hidden=64`, seed 42), test MAE là **29,090** — tệ hơn bản 24 giờ (28,248) và vẫn kém MLP 41,0 %. Vậy vấn đề là LSTM *không khai thác được* cửa sổ dài, chứ không phải chưa được cấp cửa sổ dài. Với horizon một bước, ánh xạ trực tiếp từng lag phù hợp hơn cơ chế nén tuần tự qua hidden state — kiến trúc phức tạp hơn không tự động cho kết quả tốt hơn.
+- Seasonal Naive 24h thất bại trên chuỗi chính (MASE 2,044 - tệ hơn dự báo naive), đúng như dự đoán từ tiêu chí chọn chuỗi `ac_lag24 = 0,569`. Điều này xác nhận chuỗi chính có dư địa thật cho mô hình học sâu.
+- **Ma trận ablation 2×2** (80 lần chạy): đặc trưng lịch giúp LSTM 7,2 % trên chuỗi chính (4,95 lần độ lệch chuẩn giữa các seed) nhưng **không giúp MLP** (mọi chênh lệch dưới 0,5 lần độ lệch chuẩn). Lý do: cửa sổ 168 giờ của MLP đã chứa trọn một tuần nên thông tin "thứ mấy" là dư thừa, còn cửa sổ 24 giờ của LSTM thì không. Bảng: `results/analysis/tables/ablation_dac_trung_lich.csv`.
+- **Dò siêu tham số** cải thiện MLP 1,85-7,55 % (có ý nghĩa trên 3/4 chuỗi) và giảm độ lệch chuẩn giữa các seed trên MT_162 từ 0,700 xuống 0,240.
+- **Phân tích lỗi:** sai số tập trung ở các giờ đổi chế độ quanh ngày lễ. Trên MT_162, MAE trong 73 giờ lễ cao hơn ngày thường 94,3 %; và ưu thế của MLP so với LSTM biến mất hoàn toàn ở những giờ này (39,37 so với 37,52 kW).
+
+Sổ cái đầy đủ 120 lần chạy ở giai đoạn chính thức: `results/experiments.csv`.
+Báo cáo chi tiết phần MLP và phân tích lỗi được soạn thành tệp Word `docs/baocao_mlp_phan_tich_loi.docx`
+(17 bảng, 11 hình). Tệp Word **không** được đưa lên Git - xem `.gitignore` - nên nhóm chia sẻ riêng
+khi nộp. Mọi số liệu trong đó đều sinh ra từ các bảng trong `results/analysis/tables/` và
+`results/experiments.csv`, nên có thể kiểm tra lại trực tiếp từ repo mà không cần tệp Word.
 
 ## 7. Phần sử dụng mã nguồn và mô hình bên ngoài
 
-Dữ liệu: UCI ElectricityLoadDiagrams20112014. Thư viện: pandas, numpy, matplotlib, seaborn, scikit-learn, PyYAML (và framework học sâu sau khi chốt). Chưa dùng mô hình pretrained. Cập nhật mục này nếu có thay đổi.
+Dữ liệu: UCI ElectricityLoadDiagrams20112014. Thư viện: pandas, numpy, matplotlib, seaborn, scikit-learn, PyYAML, **PyTorch** (framework học sâu đã chốt) và **holidays** (lịch nghỉ công Bồ Đào Nha cho cột `is_holiday`). Mọi kiến trúc mô hình do nhóm tự viết trong `src/models_dl.py`; không dùng mô hình pretrained. Cập nhật mục này nếu có thay đổi.
 
 ## 8. Phân công
 
