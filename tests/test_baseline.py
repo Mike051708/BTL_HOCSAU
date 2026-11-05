@@ -141,16 +141,19 @@ def test_scaler_fit_only_on_train(tmp_path):
     assert (tmp_path / "scaler_MT_158.pkl").exists()
 
 
-def test_transform_data_uses_fitted_scaler():
+def test_transform_data_uses_fitted_scaler(tmp_path):
     """Dữ liệu được transform bằng scaler đã fit trên train."""
     train_df = pd.DataFrame({
         "MT_158": [10.0, 20.0, 30.0],
     })
 
+    # models_dir phải là tmp_path, KHÔNG phải "models": fit_and_save_scaler ghi
+    # ra tệp, nên trỏ vào thư mục thật sẽ ghi đè models/scaler_MT_158.pkl của
+    # dự án mỗi lần chạy test - tệp đó được Git theo dõi nên sẽ hiện là đã sửa.
     scaler = fit_and_save_scaler(
         train_df=train_df,
         customer="MT_158",
-        models_dir="models",
+        models_dir=tmp_path,
     )
 
     transformed = transform_data(train_df, scaler)
