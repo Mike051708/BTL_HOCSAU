@@ -4,7 +4,7 @@ import pytest
 
 from src.baseline import predict_one
 from src.data import (
-    create_sliding_window,
+    create_sliding_window_for_eval,
     fit_and_save_scaler,
     transform_data,
 )
@@ -73,14 +73,14 @@ def test_sliding_window_buffer(window_size, expected_buffer):
         freq="h",
     )
 
-    X, y, target_timestamps = create_sliding_window(
-        data_array=data,
-        timestamps=timestamps,
+    X, y, target_timestamps = create_sliding_window_for_eval(
+        full_data_array=data,
+        full_timestamps=timestamps,
+        eval_start_timestamp=timestamps[n_context],
         window_size=window_size,
-        n_context=n_context,
     )
 
-    # Tổng số cửa sổ ban đầu là len(data) - window_size.
+    # Mọi window_size đều phải cho ra cùng một số nhãn: len(data) - n_context.
     expected_samples = len(data) - window_size - expected_buffer
 
     assert len(X) == expected_samples
@@ -100,11 +100,11 @@ def test_sliding_window_target_alignment():
         freq="h",
     )
 
-    X, y, target_timestamps = create_sliding_window(
-        data_array=data,
-        timestamps=timestamps,
+    X, y, target_timestamps = create_sliding_window_for_eval(
+        full_data_array=data,
+        full_timestamps=timestamps,
+        eval_start_timestamp=timestamps[168],
         window_size=24,
-        n_context=168,
     )
 
     # Với window 24 và buffer 144, X đầu tiên lấy dữ liệu index 144..167.
