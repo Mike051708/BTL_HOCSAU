@@ -265,6 +265,33 @@ Báo cáo chi tiết phần MLP và phân tích lỗi được soạn thành t�
 khi nộp. Mọi số liệu trong đó đều sinh ra từ các bảng trong `results/analysis/tables/` và
 `results/experiments.csv`, nên có thể kiểm tra lại trực tiếp từ repo mà không cần tệp Word.
 
+### Checkpoint mô hình đã huấn luyện
+
+Checkpoint không nằm trong Git (`.gitignore` chặn `models/*`, chỉ chừa `scaler_*.pkl`),
+nên được chia sẻ qua Drive:
+
+| Gói | Nội dung | Link |
+|---|---|---|
+| `MLP_hidden128_checkpoints.zip` | 20 checkpoint MLP (4 chuỗi × 5 seed), cấu hình `hidden=128`, 5,7 MB | `<ĐIỀN LINK DRIVE>` |
+| `MLP_MT_162_hidden128_5seed.zip` | 5 checkpoint chuỗi chính MT_162, kèm script xác minh, 1,4 MB | `<ĐIỀN LINK DRIVE>` |
+
+Mỗi checkpoint **tự chứa scaler** (`scaler_mean`, `scaler_scale`) cùng toàn bộ siêu tham số,
+nên nạp và dùng được ngay, không cần tệp scaler riêng.
+
+**Phân biệt hai cấu hình MLP** - hai bên dùng cùng quy ước tên tệp `MLP_<chuỗi>_s<seed>.pt`
+nên rất dễ lẫn:
+
+| | Cấu hình đã dò (dùng trong báo cáo) | Cấu hình cũ, đặt tay |
+|---|---|---|
+| `hidden` | 128 | 64 |
+| `body.0.weight` | `(256, 168)` | `(128, 168)` |
+| Số tham số | 76.289 | 29.953 |
+
+Xác minh checkpoint MT_162 bằng `python kiem_tra_checkpoint_mt162.py` (đặt 5 tệp `.pt` vào
+`models/dl/` trước). Script nạp lại checkpoint và suy luận trên tập test, **không** huấn luyện
+lại; kết quả đúng phải là MAE 20,6384 và RMSE 31,2840 trung bình 5 seed. Nếu nạp phải
+checkpoint cũ, script dừng với thông báo rõ thay vì cho ra số sai.
+
 ## 7. Phần sử dụng mã nguồn và mô hình bên ngoài
 
 Dữ liệu: UCI ElectricityLoadDiagrams20112014. Thư viện: pandas, numpy, matplotlib, seaborn, scikit-learn, PyYAML, **PyTorch** (framework học sâu đã chốt) và **holidays** (lịch nghỉ công Bồ Đào Nha cho cột `is_holiday`). Mọi kiến trúc mô hình do nhóm tự viết trong `src/models_dl.py`; không dùng mô hình pretrained. Cập nhật mục này nếu có thay đổi.
