@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7">
+<title>Dự báo điện năng</title>
+<style>
+  /* Màu và độ bo theo Human Interface Guidelines của iOS */
+  :root {
+    --bg:#f2f2f7; --card:#ffffff; --label:#000000; --label2:rgba(60,60,67,.6); --label3:rgba(60,60,67,.3);
+    --sep:rgba(60,60,67,.18); --fill:rgba(118,118,128,.12); --blue:#007aff; --green:#34c759; --orange:#ff9500; --red:#ff3b30;
+    --bar:rgba(249,249,249,.78);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#000000; --card:#1c1c1e; --label:#ffffff; --label2:rgba(235,235,245,.6); --label3:rgba(235,235,245,.3);
+      --sep:rgba(84,84,88,.6); --fill:rgba(118,118,128,.24); --blue:#0a84ff; --green:#30d158; --orange:#ff9f0a; --red:#ff453a;
+      --bar:rgba(30,30,30,.78); }
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--bg); color:var(--label);
+    font:17px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue","Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; }
+
+  /* Thanh điều hướng mờ kính, tiêu đề thu nhỏ khi cuộn */
+  .nav { position:sticky; top:0; z-index:10; height:44px; display:flex; align-items:center; justify-content:center;
+    background:var(--bar); -webkit-backdrop-filter:saturate(180%) blur(20px); backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:.5px solid transparent; transition:border-color .2s; }
+  .nav.scrolled { border-bottom-color:var(--sep); }
+  .nav span { font-weight:600; font-size:17px; opacity:0; transition:opacity .2s; }
+  .nav.scrolled span { opacity:1; }
+  main { max-width:680px; margin:0 auto; padding:0 16px calc(40px + env(safe-area-inset-bottom)); }
+  h1 { font-size:34px; line-height:1.12; font-weight:700; letter-spacing:.37px; margin:0 4px 4px; }
+  .sub { color:var(--label2); font-size:15px; margin:0 4px 20px; }
+
+  /* Nhóm danh sách kiểu inset grouped */
+  .hdr { text-transform:uppercase; color:var(--label2); font-size:13px; letter-spacing:-.08px; margin:24px 16px 7px; }
+  .group { background:var(--card); border-radius:12px; overflow:hidden; }
+  .cell { padding:11px 16px; position:relative; }
+  .cell + .cell::before { content:""; position:absolute; top:0; left:16px; right:0; height:.5px; background:var(--sep); }
+  .foot { color:var(--label2); font-size:13px; margin:7px 16px 0; }
+  .cell .t { font-size:17px; }
+  .cell .d { color:var(--label2); font-size:15px; margin-top:2px; }
+
+  select { width:100%; appearance:none; -webkit-appearance:none; border:0; background:transparent; color:var(--blue);
+    font:inherit; padding:0; cursor:pointer; text-align:left; outline:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='18' viewBox='0 0 12 18'%3E%3Cpath d='M2 7l4-4 4 4M2 11l4 4 4-4' fill='none' stroke='%238e8e93' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 0 center; padding-right:22px; }
+
+  /* Segmented control */
+  .seg { display:flex; background:var(--fill); border-radius:9px; padding:2px; position:relative; }
+  .seg button { flex:1; border:0; background:transparent; color:var(--label); font:inherit; font-size:13px; font-weight:500;
+    padding:6px 8px; border-radius:7px; cursor:pointer; position:relative; z-index:1; transition:background .2s, box-shadow .2s; }
+  .seg button.on { background:var(--card); font-weight:600; box-shadow:0 3px 8px rgba(0,0,0,.12), 0 3px 1px rgba(0,0,0,.04); }
+  @media (prefers-color-scheme: dark) { .seg button.on { background:#636366; } }
+
+  textarea { width:100%; min-height:130px; border:0; background:transparent; color:var(--label); resize:vertical; outline:none;
+    font:13px/1.45 ui-monospace,"SF Mono",Menlo,Consolas,monospace; padding:0; }
+  textarea::placeholder { color:var(--label3); }
+  input[type=file] { font:inherit; font-size:15px; color:var(--label2); max-width:100%; }
+  input[type=file]::file-selector-button { border:0; background:var(--fill); color:var(--blue); font:inherit; font-size:15px;
+    padding:5px 12px; border-radius:999px; margin-right:10px; cursor:pointer; }
+
+  /* Nút */
+  .btn { display:block; width:100%; border:0; border-radius:14px; padding:15px; font:inherit; font-size:17px; font-weight:600;
+    cursor:pointer; transition:opacity .15s, transform .1s; }
+  .btn:active { transform:scale(.98); opacity:.8; }
+  .btn.fill { background:var(--blue); color:#fff; }
+  .btn.tint { background:var(--fill); color:var(--blue); margin-top:10px; }
+  .btn:disabled { opacity:.45; cursor:wait; transform:none; }
+
+  .err { display:none; margin-top:14px; padding:12px 16px; border-radius:12px; background:rgba(255,59,48,.12); color:var(--red);
+    font-size:15px; white-space:pre-wrap; }
+  .err.show { display:block; }
+
+  /* Kết quả */
+  .hidden { display:none !important; }
+  .result { text-align:center; padding:22px 16px 14px; }
+  .result .lbl { color:var(--label2); font-size:13px; text-transform:uppercase; letter-spacing:.3px; }
+  .result .num { font-size:56px; font-weight:700; letter-spacing:-1px; line-height:1.1; margin:4px 0 0; }
+  .result .num small { font-size:22px; font-weight:600; color:var(--label2); letter-spacing:0; margin-left:4px; }
+  .result .when { color:var(--label2); font-size:15px; margin-top:4px; }
+  .row { display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .row .v { color:var(--label2); text-align:right; font-variant-numeric:tabular-nums; }
+  .row .v b { color:var(--label); font-weight:600; }
+  .good { color:var(--green) !important; }
+  canvas { width:100%; height:230px; display:block; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--label2); padding:0 16px 14px; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+
+  /* Bảng đánh giá dạng danh sách */
+  .ev .row .nm { font-weight:400; }
+  .ev .row.me .nm, .ev .row.me .v b { color:var(--blue); font-weight:600; }
+  .ev .cols { color:var(--label2); font-size:12px; text-transform:uppercase; letter-spacing:.3px; }
+  .ev .num3 { display:grid; grid-template-columns:repeat(3, 72px); text-align:right; font-variant-numeric:tabular-nums; }
+  @media (max-width:430px) { .ev .num3 { grid-template-columns:repeat(3, 58px); font-size:15px; } }
+  .spin { display:inline-block; width:15px; height:15px; border:2px solid currentColor; border-right-color:transparent;
+    border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:8px; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+  .fade { animation:fd .3s ease; }
+  @keyframes fd { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+<div class="nav" id="nav"><span>Dự báo điện năng</span></div>
+<main>
+  <h1>Dự báo điện năng</h1>
+
+  <div class="hdr">Mô hình</div>
+  <div class="group">
+    <div class="cell"><select id="ck" aria-label="Mô hình"></select></div>
+    <div class="cell"><div class="d" id="ckinfo" style="margin:0"></div></div>
+  </div>
+
+  <div class="hdr">Dữ liệu đầu vào</div>
+  <div class="group">
+    <div class="cell"><div class="seg" id="seg">
+      <button class="on" data-mode="sample">Dữ liệu mẫu</button>
+      <button data-mode="csv">Dán / tải CSV</button>
+    </div></div>
+    <div class="cell" id="csvbox" style="display:none">
+      <textarea id="txt" placeholder="2014-07-25 02:00:00,312.4&#10;2014-07-25 03:00:00,298.1&#10;…"></textarea>
+    </div>
+    <div class="cell" id="filebox" style="display:none"><input type="file" id="file" accept=".csv,.txt"></div>
+  </div>
+  <div class="foot" id="modehint"></div>
+
+  <div style="margin-top:22px">
+    <button class="btn fill" id="run">Dự báo giờ kế tiếp</button>
+    <button class="btn tint" id="eval">Chấm cả tập test (3.672 giờ)</button>
+  </div>
+  <div class="err" id="err" role="alert"></div>
+
+  <div id="resbox" class="hidden">
+    <div class="hdr">Kết quả</div>
+    <div class="group">
+      <div class="result">
+        <div class="lbl">Dự báo</div>
+        <div class="num"><span id="pred"></span><small>kW</small></div>
+        <div class="when" id="when"></div>
+      </div>
+      <div class="cell"><canvas id="cv"></canvas></div>
+      <div class="legend">
+        <span><span class="dot" style="background:var(--blue)"></span>Lịch sử đầu vào</span>
+        <span><span class="dot" style="background:var(--orange)"></span>Dự báo</span>
+        <span id="actleg" class="hidden"><span class="dot" style="background:var(--green)"></span>Giá trị thực</span>
+      </div>
+      <div class="cell row" id="r1"><span>Mô hình</span><span class="v" id="v1"></span></div>
+      <div class="cell row" id="r2"><span>Giờ cuối đưa vào</span><span class="v" id="v2"></span></div>
+      <div class="cell row hidden" id="r3"><span>Giá trị thực</span><span class="v" id="v3"></span></div>
+      <div class="cell row hidden" id="r4"><span>Sai lệch</span><span class="v" id="v4"></span></div>
+    </div>
+  </div>
+
+  <div id="evbox" class="hidden ev">
+    <div class="hdr">Đánh giá trên tập test</div>
+    <div class="group" id="evlist"></div>
+    <div class="foot" id="evmeta"></div>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let mode = "sample", cks = [];
+const fmt = (x, d = 2) => Number(x).toLocaleString("vi-VN", { minimumFractionDigits: d, maximumFractionDigits: d });
+
+async function api(url, body) {
+  const r = await fetch(url, body ? { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) } : {});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || "Lỗi không xác định");
+  return j;
+}
+const showErr = m => { $("err").textContent = m; $("err").classList.toggle("show", !!m); };
+const curCk = () => cks.find(c => c.name === $("ck").value);
+
+function refreshInfo() {
+  const c = curCk(); if (!c) return;
+  $("ckinfo").textContent = `Chuỗi ${c.customer} · cần ${c.lookback} giờ gần nhất · ${c.calendar ? "có đặc trưng lịch (CSV phải có timestamp)" : "không dùng đặc trưng lịch"}`;
+  $("modehint").textContent = mode === "sample"
+    ? "168 giờ cuối của tập validation. Dự báo giờ 01:00 ngày 01/08/2014 rồi so với giá trị thực."
+    : `Mỗi dòng: timestamp,kW — timestamp là mốc kết thúc giờ, cách đều 1 giờ. Dữ liệu phải của khách hàng ${c.customer}. Một cột số chỉ dùng được với mô hình không có đặc trưng lịch.`;
+}
+document.querySelectorAll("#seg button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#seg button").forEach(x => x.classList.remove("on")); b.classList.add("on");
+  mode = b.dataset.mode;
+  $("csvbox").style.display = $("filebox").style.display = mode === "csv" ? "" : "none";
+  refreshInfo();
+});
+$("ck").onchange = refreshInfo;
+$("file").onchange = async e => { const f = e.target.files[0]; if (f) $("txt").value = await f.text(); };
+const onScroll = () => $("nav").classList.toggle("scrolled", scrollY > 40);
+addEventListener("scroll", onScroll, { passive: true });
+
+function draw(res) {
+  const cv = $("cv"), dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext("2d"); g.scale(dpr, dpr); g.clearRect(0, 0, W, H);
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue(n).trim();
+  const h = res.history, n = h.length;
+  const vals = h.concat([res.prediction], res.actual != null ? [res.actual] : []);
+  let lo = Math.min(...vals), hi = Math.max(...vals); const pad = (hi - lo) * .1 || 1; lo -= pad; hi += pad;
+  const L = 40, R = 8, T = 8, B = 22;
+  const x = i => L + (W - L - R) * i / n, y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  g.strokeStyle = col("--sep"); g.fillStyle = col("--label2"); g.font = "11px -apple-system,system-ui"; g.lineWidth = .5;
+  for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4, yy = y(v);
+    g.beginPath(); g.moveTo(L, yy); g.lineTo(W - R, yy); g.stroke(); g.fillText(fmt(v, 0), 2, yy + 4); }
+  if (res.history_time) for (const i of [0, Math.floor(n / 2), n - 1]) g.fillText(res.history_time[i], Math.min(x(i), W - 78), H - 6);
+  g.lineJoin = "round"; g.lineCap = "round";
+  g.strokeStyle = col("--blue"); g.lineWidth = 1.8; g.beginPath();
+  h.forEach((v, i) => i ? g.lineTo(x(i), y(v)) : g.moveTo(x(i), y(v))); g.stroke();
+  g.setLineDash([4, 4]); g.strokeStyle = col("--orange"); g.lineWidth = 2; g.beginPath();
+  g.moveTo(x(n - 1), y(h[n - 1])); g.lineTo(x(n), y(res.prediction)); g.stroke(); g.setLineDash([]);
+  const dot = (v, c) => { g.fillStyle = c; g.beginPath(); g.arc(x(n), y(v), 5, 0, 7); g.fill();
+    g.strokeStyle = col("--card"); g.lineWidth = 2; g.stroke(); };
+  if (res.actual != null) dot(res.actual, col("--green"));
+  dot(res.prediction, col("--orange"));
+}
+
+$("run").onclick = async () => {
+  showErr(""); $("run").disabled = true; const t0 = $("run").textContent; $("run").innerHTML = '<span class="spin"></span>Đang dự báo';
+  try {
+    const res = await api("/api/predict", { checkpoint: $("ck").value, mode, text: $("txt").value });
+    $("resbox").classList.remove("hidden"); $("resbox").classList.remove("fade"); void $("resbox").offsetWidth; $("resbox").classList.add("fade");
+    $("pred").textContent = fmt(res.prediction);
+    $("when").textContent = res.target_time ? `cho giờ nhãn ${res.target_time}` : "cho giờ kế tiếp";
+    $("v1").innerHTML = `<b>${res.model}</b> · ${res.lookback} giờ`;
+    $("v2").innerHTML = `<b>${fmt(res.last_value)}</b> kW`;
+    const has = res.actual != null;
+    ["r3", "r4"].forEach(i => $(i).classList.toggle("hidden", !has)); $("actleg").classList.toggle("hidden", !has);
+    if (has) {
+      const d = Math.abs(res.prediction - res.actual);
+      $("v3").innerHTML = `<b>${fmt(res.actual)}</b> kW`;
+      $("v4").innerHTML = `<b class="good">${fmt(d)} kW</b> · ${fmt(100 * d / res.actual)}%`;
+    }
+    draw(res); window.__last = res;
+    $("resbox").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { showErr(e.message); }
+  $("run").disabled = false; $("run").textContent = t0;
+};
+$("eval").onclick = async () => {
+  showErr(""); $("eval").disabled = true; const t0 = $("eval").textContent; $("eval").innerHTML = '<span class="spin"></span>Đang chấm';
+  try {
+    const r = await api("/api/evaluate?checkpoint=" + encodeURIComponent($("ck").value));
+    $("evbox").classList.remove("hidden"); $("evbox").classList.remove("fade"); void $("evbox").offsetWidth; $("evbox").classList.add("fade");
+    $("evlist").innerHTML =
+      `<div class="cell row"><span class="cols">Mô hình</span><span class="num3 cols"><span>MAE</span><span>RMSE</span><span>MASE</span></span></div>` +
+      r.rows.map((x, i) => `<div class="cell row ${i ? "" : "me"}"><span class="nm">${x.name}</span><span class="num3 v"><b>${fmt(x.MAE, 2)}</b><span>${fmt(x.RMSE, 2)}</span><span>${fmt(x.MASE, 3)}</span></span></div>`).join("");
+    $("evmeta").textContent = `Chuỗi ${r.customer} · ${r.n.toLocaleString("vi-VN")} giờ (01/08/2014 → 01/01/2015). MAE, RMSE tính bằng kW; MASE < 1 là tốt hơn dự báo naive một bước.`;
+    $("evbox").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (e) { showErr(e.message); }
+  $("eval").disabled = false; $("eval").textContent = t0;
+};
+addEventListener("resize", () => window.__last && draw(window.__last));
+
+(async () => {
+  try { cks = await api("/api/checkpoints"); } catch (e) { showErr(e.message); return; }
+  $("ck").innerHTML = cks.map(c => `<option value="${c.name}">${c.label || c.name}</option>`).join("");
+  refreshInfo();
+  if (location.hash === "#run") $("run").click();        // mở thẳng kèm kết quả: http://127.0.0.1:8000/#run
+  if (location.hash === "#eval") $("eval").click();
+})();
+</script>
+</body>
+</html>
