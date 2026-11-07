@@ -11,7 +11,7 @@ Checkpoint đã chứa kiến trúc, siêu tham số, `scaler_mean` và `scaler_
 |---|---|
 | `predict.py` | Lõi dự báo và công cụ dòng lệnh |
 | `app.py`, `index.html` | Máy chủ web và giao diện (chỉ dùng thư viện chuẩn của Python) |
-| `checkpoints/` | Hai checkpoint đi kèm (mục 5) |
+| `checkpoints/` | Ba checkpoint đi kèm (mục 5) |
 | `sample_input.csv` | Dữ liệu mẫu: 168 giờ cuối tập validation |
 | `../tests/test_demo_predict.py` | 4 ca kiểm thử |
 
@@ -50,7 +50,7 @@ Cần Python 3.11 hoặc 3.12 (PyTorch chưa hỗ trợ 3.14). Gói `holidays` b
 dir demo\checkpoints
 ```
 
-Phải thấy `MLP_MT_162_khong_lich.pt` và `LSTM_MT_162_co_lich.pt`. Thiếu thì máy chủ web không khởi động được.
+Phải thấy `MLP_MT_162_hidden128_khong_lich.pt`, `MLP_MT_162_khong_lich.pt` và `LSTM_MT_162_co_lich.pt`. Thiếu thì máy chủ web không khởi động được.
 
 ---
 
@@ -92,7 +92,7 @@ Máy chủ chỉ lắng nghe `127.0.0.1` (máy đang chạy), chỉ nạp checkp
 
 | Mục đích | Lệnh |
 |---|---|
-| Dự báo nhanh (MLP, dữ liệu validation) | `python demo/predict.py` |
+| Dự báo nhanh (MLP hidden 128, dữ liệu validation) | `python demo/predict.py` |
 | Dự báo từ tệp CSV | `python demo/predict.py --csv demo/sample_input.csv` |
 | Dự báo từ danh sách số kW | `python demo/predict.py --values 300 310 320 ...` (đủ 168 giá trị) |
 | Dùng LSTM có đặc trưng lịch | `python demo/predict.py --checkpoint demo/checkpoints/LSTM_MT_162_co_lich.pt --csv demo/sample_input.csv` |
@@ -103,7 +103,7 @@ Kết quả mẫu của lệnh đầu tiên:
 ```
 Mô hình : MLP | chuỗi huấn luyện MT_162 | lookback 168 | đặc trưng lịch: không
 Đầu vào : 3672 giờ, dùng 168 giờ cuối (giờ cuối = 447.51 kW)
-Dự báo  : 452.61 kW cho giờ nhãn 2014-08-01 01:00
+Dự báo  : 448.86 kW cho giờ nhãn 2014-08-01 01:00
 ```
 
 Giá trị thực của giờ đó là 451,48 kW.
@@ -128,27 +128,37 @@ Giá trị thực của giờ đó là 451,48 kW.
 
 ---
 
-## 5. Hai checkpoint đi kèm (`demo/checkpoints/`)
+## 5. Ba checkpoint đi kèm (`demo/checkpoints/`)
 
 | Tệp | Mô hình | Cấu hình | Đặc trưng lịch |
 |---|---|---|---|
-| `MLP_MT_162_khong_lich.pt` (mặc định) | MLP | lookback 168, hidden 64, dropout 0,1, seed 42 | không |
+| `MLP_MT_162_hidden128_khong_lich.pt` (**mặc định**) | MLP | lookback 168, **hidden 128, dropout 0,2** (đã dò tham số), seed 42 | không |
+| `MLP_MT_162_khong_lich.pt` | MLP | lookback 168, hidden 64, dropout 0,1 (cấu hình khởi điểm, trước khi dò), seed 42 | không |
 | `LSTM_MT_162_co_lich.pt` | LSTM | lookback 24, hidden 128, 2 lớp, dropout 0,2, seed 42 | có |
 
-**Lưu ý:** MLP ở đây là cấu hình khởi điểm (`hidden 64`), chưa phải cấu hình tinh chỉnh cuối (`hidden 128`, `dropout 0,2`) nêu trong README chính. Mỗi checkpoint là một seed; số trong báo cáo là trung bình 5 seed.
+**Đối chiếu với báo cáo MLP của Bảo Quốc** (test MAE trên MT_162):
+
+| | Báo cáo Bảo Quốc | Demo | Khớp |
+|---|---|---|---|
+| Cấu hình MLP | hidden 128, dropout 0,2 (đã dò tham số) | MLP mặc định: hidden 128, dropout 0,2 | Có |
+| MAE test của MLP | 20,638 (trung bình 5 seed) | 20,398 (seed 42) | Cùng mô hình; chỉ khác 1 seed so với trung bình 5 seed |
+| Cấu hình LSTM | lookback 24, hidden 128, 2 lớp, có lịch | giống hệt | Có |
+| MAE test của LSTM | 26,632 (trung bình 5 seed) | 25,987 (seed 42) | Cùng mô hình; chỉ khác 1 seed so với trung bình 5 seed |
+
+Checkpoint MLP mặc định do Bảo Quốc gửi (`MLP_MT_162_s42.pt` trong gói `MLP_MT_162_hidden128_5seed`). Theo gói đó, 5 seed (42–46) cho MAE test 20,3977 / 20,3768 / 20,9114 / 20,7949 / 20,7113, trung bình **20,6384**, đúng số trong báo cáo. Demo chỉ mang seed 42. MLP `hidden 64` được giữ lại để so sánh "trước / sau khi dò tham số" (báo cáo, Bảng 5: 21,434 ± 0,700 so với 20,638 ± 0,240).
 
 ### Kiểm tra checkpoint: `--evaluate-test`
 
-Chấm toàn bộ tập test (3.672 giờ, 01/08/2014 → 01/01/2015) bằng đúng quy ước huấn luyện:
+Chấm toàn bộ tập test (3.672 giờ, 01/08/2014 → 01/01/2015) bằng đúng quy ước huấn luyện (mặc định MLP hidden 128):
 
 | | MAE (kW) | RMSE (kW) | MASE |
 |---|---|---|---|
-| MLP (seed 42) | 20,406 | 31,103 | 0,432 |
+| MLP hidden 128 (seed 42) | 20,398 | 30,979 | 0,432 |
 | LSTM có lịch (seed 42) | 25,987 | 39,451 | 0,551 |
 | Seasonal Naive 168h | 34,226 | 57,327 | 0,725 |
 | Seasonal Naive 24h | 96,487 | 146,194 | 2,044 |
 
-Hai dòng mô hình khớp sổ cái `results/experiments.csv` (20,4057 và 25,9871). Riêng LSTM cần cài `holidays`; thiếu gói này cột ngày lễ bằng 0 và MAE lệch khoảng 0,07 kW.
+MAE và RMSE của MLP khớp số Bảo Quốc ghi cho seed 42 (20,3977 và 30,9795) và sổ cái `results/experiments.csv`; LSTM khớp sổ cái (25,9871). Riêng LSTM cần cài `holidays`; thiếu gói này cột ngày lễ bằng 0 và MAE lệch khoảng 0,07 kW.
 
 ---
 

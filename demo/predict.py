@@ -7,7 +7,7 @@ scaler_scale nên không cần dữ liệu huấn luyện để đưa kết qu�
 Đầu vào là các giờ gần nhất, theo thứ tự thời gian, đủ `lookback` giờ của
 checkpoint (MLP: 168, LSTM: 24). Nếu dư thì lấy các giờ cuối.
 
-Cách dùng (không cần --checkpoint thì dùng demo/checkpoints/MLP_MT_162_khong_lich.pt):
+Cách dùng (không cần --checkpoint thì dùng demo/checkpoints/MLP_MT_162_hidden128_khong_lich.pt):
     python demo/predict.py                                  # trình diễn nhanh
     python demo/predict.py --csv demo/sample_input.csv      # dữ liệu mới dạng CSV (timestamp, kW)
     python demo/predict.py --values 280 290 ...             # danh sách kW (checkpoint không dùng lịch)
@@ -131,7 +131,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--checkpoint", default=str(Path(__file__).parent / "checkpoints"
-                                                / "MLP_MT_162_khong_lich.pt"),
+                                                / "MLP_MT_162_hidden128_khong_lich.pt"),
                     help="đường dẫn tệp .pt (mặc định: MLP MT_162 trong demo/checkpoints/)")
     ap.add_argument("--csv", help="CSV: cột 1 timestamp, cột 2 kW")
     ap.add_argument("--values", type=float, nargs="+", help="các giá trị kW liên tiếp")

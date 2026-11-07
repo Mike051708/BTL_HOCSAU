@@ -32,8 +32,9 @@ import predict  # noqa: E402  (demo/predict.py)
 CKPT_DIR = HERE / "checkpoints"
 MAX_BODY = 2 * 1024 * 1024            # 2 MB là quá đủ cho 168 giờ dữ liệu
 LABELS = {
-    "MLP_MT_162_khong_lich.pt": "MLP — 168 giờ, không đặc trưng lịch (mặc định)",
-    "LSTM_MT_162_co_lich.pt": "LSTM — 24 giờ, có đặc trưng lịch",
+    "MLP_MT_162_hidden128_khong_lich.pt": "MLP · hidden 128 · như báo cáo (mặc định)",
+    "MLP_MT_162_khong_lich.pt": "MLP · hidden 64 · khởi điểm",
+    "LSTM_MT_162_co_lich.pt": "LSTM · 24 giờ · có đặc trưng lịch",
 }
 
 _lock = threading.Lock()
