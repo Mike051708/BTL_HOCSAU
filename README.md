@@ -268,12 +268,17 @@ khi nộp. Mọi số liệu trong đó đều sinh ra từ các bảng trong `r
 ### Checkpoint mô hình đã huấn luyện
 
 Checkpoint không nằm trong Git (`.gitignore` chặn `models/*`, chỉ chừa `scaler_*.pkl`),
-nên được chia sẻ qua Drive:
+nên được chia sẻ qua thư mục Drive của nhóm:
 
-| Gói | Nội dung | Link |
-|---|---|---|
-| `MLP_hidden128_checkpoints.zip` | 20 checkpoint MLP (4 chuỗi × 5 seed), cấu hình `hidden=128`, 5,7 MB | `<ĐIỀN LINK DRIVE>` |
-| `MLP_MT_162_hidden128_5seed.zip` | 5 checkpoint chuỗi chính MT_162, kèm script xác minh, 1,4 MB | `<ĐIỀN LINK DRIVE>` |
+**https://drive.google.com/drive/folders/1ERuelBv0EZRyBdjFLVPWUQ_4Hr-0vD5a**
+
+| Gói trong thư mục | Nội dung |
+|---|---|
+| `MLP_hidden128_checkpoints.zip` | 20 checkpoint MLP (4 chuỗi × 5 seed), cấu hình `hidden=128` - 5,7 MB |
+| `MLP_MT_162_hidden128_5seed.zip` | 5 checkpoint chuỗi chính MT_162, kèm `MANIFEST`, script xác minh và hướng dẫn - 1,4 MB |
+
+Giải nén các tệp `.pt` vào `models/dl/`. Quyền truy cập theo cài đặt chia sẻ của thư mục;
+ai không mở được thì liên hệ thành viên phụ trách phần MLP.
 
 Mỗi checkpoint **tự chứa scaler** (`scaler_mean`, `scaler_scale`) cùng toàn bộ siêu tham số,
 nên nạp và dùng được ngay, không cần tệp scaler riêng.
